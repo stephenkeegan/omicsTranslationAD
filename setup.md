@@ -5,7 +5,8 @@ title: Setup
 
 To participate in this workshop, you will need to have a [registered Synapse account](https://www.synapse.org) and accept the AD Knowledge Portal data terms of use.
 
-1. If you have successfully created a Synapse account and are logged into Synapse, you should be able to view and download this file: https://www.synapse.org/#!Synapse:syn26200396 
+1. If you have successfully created a Synapse account and are logged into Synapse, you should be able to view and download this file: <https://www.synapse.org/#!Synapse:syn26200396>
+2. If you have successfully accepted the AD Portal terms of use, you should be able to view and download this file: <https://www.synapse.org/#!Synapse:syn22103212>
 
 # Software Installation
 
