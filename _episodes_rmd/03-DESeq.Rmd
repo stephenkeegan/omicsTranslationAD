@@ -1,0 +1,785 @@
+---
+source: Rmd
+title: "Differential Expression Analysis"
+teaching: 40
+exercises: 10
+questions:
+- "What transcriptomic changes we observe in mouse models carrying AD-related mutations?"
+objectives:
+- "Read in a count matrix and metadata."
+- "Understand the data from AD mouse models"
+- "Format the data for differential analysis"
+- "Perform differential analysis using DESeq2."
+- "Pathway enrichment of differentially expressed genes"
+- "Save data for next lessons"
+---
+
+```{r, include=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("03-")
+```
+
+Author: Ravi Pandey, Jackson Laboratory
+
+
+## LOAD libraries
+```{r libs, warning=FALSE}
+suppressPackageStartupMessages(library("DESeq2"))
+suppressPackageStartupMessages(library("ggplot2"))
+suppressPackageStartupMessages(library("AnnotationDbi"))
+suppressPackageStartupMessages(library("org.Mm.eg.db"))
+suppressPackageStartupMessages(library("GO.db"))
+suppressPackageStartupMessages(library("EnhancedVolcano"))
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(clusterProfiler))
+```
+
+
+
+## Reading Gene Expression Count matrix from  Previous Lesson
+In this lesson, we will use the raw counts matrix and metadata downloaded in the previous lesson and will perform differential expression analysis. 
+
+### RNA-Seq data from 5xFAD mouse models
+
+```{r load_data}
+counts <- read.delim("../data/htseqcounts_5XFAD.txt", check.names = FALSE)
+```
+
+Reading Sample Metadata from Previous Lesson
+```{r}
+covars <- readRDS("../data/covars_5XFAD.rds")
+```
+
+Let's explore the data: 
+
+Let’s look at the top of the metadata.
+```{r}
+head(covars)
+```
+
+identify distinct groups using sample metadata
+```{r}
+distinct(covars, sex, genotype, timepoint)
+```
+
+We're going to explore the data further using a series of Challenges. 
+You will be asked to look at the contents of some of the columns to see 
+how the data are 
+distributed.
+
+> ## Challenge 1
+> How many mice were used to produce this data? 
+>
+> > ## Solution to Challenge 1
+> >
+> > covars %>% group_by(sex,genotype,timepoint) %>% count()
+> > dplyr::count(metadata, sex, genotype,timepoint)
+> {: .solution}
+{: .challenge}
+
+
+How many rows and columns are there in `counts`?
+```{r}
+dim(counts)
+```
+
+In the counts matrix, genes are in rows and samples are in columns. Let’s look at the first few rows.
+
+```{r}
+head(counts,n=5)
+```
+
+As you can see, the gene ids are ENSEBL IDs. There is some risk that these may not be unique. Let’s check whether any of the gene symbols are duplicated. We will sum the number of duplicated gene symbols.
+
+```{r}
+sum(duplicated(rownames(counts)))
+```
+
+The sum equals zero, so there are no duplicated gene symbols, which is good. Similarly, samples should be unique. Once again, let's verify this:
+
+```{r}
+sum(duplicated(colnames(counts)))
+```
+
+
+### Formatting the count matrix
+Now, as we see that gene_id is in first column of count matrix, but we will need only count data in matrix, so we will change the gene_id column to rownames.  
+Converting the gene_id as rownames of count matrix
+```{r}
+counts <- counts %>% column_to_rownames(.,var="gene_id") %>% as.data.frame()
+```
+
+let's confirm if change is done correctly
+```{r}
+head(counts,n=5)
+```
+
+As you can see from count table there are some genes that start with **"ENSG"** and others start with **"ENSMUSG"**. **"ENSG"** referes to human gene ENSEMBL id and **"ENSMUSG"** refer to mouse ENSEMBL id. Let's check how many gene_ids are NOT from the mouse genome by searching for the string "MUS" (as in Mus musculus) in the rownames of count matrix
+```{r}
+counts[,1:6] %>% 
+  filter(!str_detect(rownames(.), "MUS"))
+```
+Ok, so we see there are two human genes in out count matrix. Why? What genes are they?
+
+
+Briefly, 5xFAD mouse strain harbors two human transgenes APP ("ENSG00000142192") and PSEN1 ("ENSG00000080815") and inserted into exon 2 of the mouse Thy1 gene. To validate 5XFAD strain and capture expression of human transgene APP and PS1, a custom mouse genomic sequences was created and we quantified expression of human as well as mouse App ("ENSMUSG00000022892") and Psen1 ("ENSMUSG00000019969") genes by our MODEL-AD RNA-Seq pipeline.
+
+### Validation of 5xFAD mouse strain
+
+#First we convert the dataframe to longer format and join our covariates by MouseID
+```{r warning=FALSE,fig.width=14,fig.height=10}
+count_tpose <- counts  %>%
+                rownames_to_column(.,var="gene_id") %>% 
+                filter(gene_id %in% c("ENSG00000080815","ENSMUSG00000019969","ENSG00000142192","ENSMUSG00000022892")) %>% 
+                pivot_longer(.,cols = -"gene_id",names_to = "specimenID",values_to="counts") %>% as.data.frame() %>%
+                left_join(covars ,by="specimenID") %>% as.data.frame()
+head(count_tpose) 
+
+#make the age column a factor and re-order the levels
+count_tpose$timepoint <- factor(count_tpose$timepoint,levels=c("4 mo","6 mo","12 mo"))
+
+# rename the gene id to gene symbol
+count_tpose$gene_id[count_tpose$gene_id %in% "ENSG00000142192"] <- "Human APP"
+count_tpose$gene_id[count_tpose$gene_id %in% "ENSG00000080815"] <- "Human PSEN1"
+count_tpose$gene_id[count_tpose$gene_id %in% "ENSMUSG00000022892"] <- "Mouse App"
+count_tpose$gene_id[count_tpose$gene_id %in% "ENSMUSG00000019969"] <- "Mouse Psen1"
+```
+
+
+```{r warning=FALSE,message=FALSE,fig.width=14,fig.height=12}
+#Create simple box plots showing normalized counts by genotype and time point, faceted by sex.
+count_tpose %>% 
+  ggplot(aes(x=timepoint, y=counts, color=genotype)) +
+  geom_boxplot() + 
+  geom_point(position=position_jitterdodge()) +
+  facet_wrap(~sex+gene_id) +theme_bw()
+
+```
+You will notice expression of Human APP is higher in 5XFAD carriers but lower in non-carriers. However mouse App expressed in both 5XFAD carrier and non-carrier. 
+
+We are going to sum the counts from both ortholgous genes (human APP and mouse App; human PSEN1 and mouse Psen1) and save summed expression as expression of mouse genes, respectively to match with gene names in control mice.
+```{r}
+#merge mouse and human APP gene raw count
+counts[rownames(counts) %in% "ENSMUSG00000022892",] <- counts[rownames(counts) %in% "ENSMUSG00000022892",] + counts[rownames(counts) %in% "ENSG00000142192",]
+counts <- counts[!rownames(counts) %in% c("ENSG00000142192"),]
+
+#merge mouse and human PS1 gene raw count
+counts[rownames(counts) %in% "ENSMUSG00000019969",] <- counts[rownames(counts) %in% "ENSMUSG00000019969",] + counts[rownames(counts) %in% "ENSG00000080815",]
+counts <- counts[!rownames(counts) %in% c("ENSG00000080815"),]
+```
+
+Let's verify if expression of both human genes have been merged or not:
+```{r}
+counts[,1:6] %>% 
+  filter(!str_detect(rownames(.), "MUS"))
+```
+
+
+What proportion of genes have zero counts in all samples?
+```{r}
+gene_sums <- data.frame(gene_id = rownames(counts),
+                        sums    = Matrix::rowSums(counts))
+sum(gene_sums$sums == 0)
+```
+We can see that 9691 (17%) genes have no reads at all associated with them. In the next lesson, we will remove genes that have no counts in any samples.
+
+## Differential Analysis using DESeq2
+
+Now, after exploring and formatting the data, We will look for differential expression between the control and 5xFAD mice at different ages for both sexes. The differentially expressed genes (DEGs) can inform our understanding of how the 5XFAD mutation affect the biological processes.
+
+DESeq2 analysis consist of multiple steps. We are going to briefly understand some of the important steps using subset of data and then we will perform differential analysis on whole dataset. For detailed analysis see the [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) tutorial.
+
+First, order the data (so counts and metadata match) and save in another variable
+```{r subset}
+rawdata <- counts[,sort(colnames(counts))]
+metadata <- covars[sort(rownames(covars)),]
+```
+
+subset the counts matrix and sample metadata to include only 12 month old male mice. You can amend the code to compare wild type and 5XFAD mice from either sex, at any time point.
+
+```{r}
+meta.12M.Male <- metadata[(metadata$sex=="male" & metadata$timepoint=='12 mo'),]
+
+meta.12M.Male
+
+dat <- as.matrix(rawdata[,colnames(rawdata) %in% rownames(meta.12M.Male)])
+colnames(dat)
+rownames(meta.12M.Male)
+match(colnames(dat),rownames(meta.12M.Male))
+```
+
+
+Next, we build the DESeqDataSet using the following function:
+```{r}
+
+ddsHTSeq <- DESeqDataSetFromMatrix(countData=dat, 
+                                   colData=meta.12M.Male, 
+                                   design = ~genotype)
+
+ddsHTSeq
+
+```
+
+### Pre-filtering
+While it is not necessary to pre-filter low count genes before running the DESeq2 functions, there are two reasons which make pre-filtering useful: by removing rows in which there are very few reads, we reduce the memory size of the dds data object, and we increase the speed of the transformation and testing functions within DESeq2. It can also improve visualizations, as features with no information for differential expression are not plotted.
+
+Here we perform a minimal pre-filtering to keep only rows that have at least 10 reads total. 
+```{r}
+ddsHTSeq <- ddsHTSeq[rowSums(counts(ddsHTSeq)) >= 10,]
+
+ddsHTSeq
+```
+
+### Reference level
+By default, R will choose a reference level for factors based on alphabetical order. Then, if you never tell the DESeq2 functions which level you want to compare against (e.g. which level represents the control group), the comparisons will be based on the alphabetical order of the levels.
+
+specifying the reference-level to **5XFAD_noncarrier**:
+```{r}
+ddsHTSeq$genotype <- relevel(ddsHTSeq$genotype,ref="5XFAD_noncarrier")  
+```
+
+Run the standard differential expression analysis steps that is wrapped into a single function, `DESeq`.
+```{r message=FALSE,warning=FALSE}
+dds <- DESeq(ddsHTSeq,parallel = TRUE)
+```
+
+Results tables are generated using the function `results`, which extracts a results table with log2 fold changes, p values and adjusted p values. By default the argument alpha is set to 0.1. If the adjusted p value cutoff will be a value other than 0.1, alpha should be set to that value:
+
+```{r}
+res <- results(dds,alpha=0.05)  # setting 0.05 as significant threshold
+res
+```
+
+We can order our results table by the smallest p value:
+```{r}
+resOrdered <- res[order(res$pvalue),]
+
+head(resOrdered,n=10)
+```
+
+we can summarize some basic tallies using the summary function.
+```{r summary}
+summary(res)
+```
+
+How many adjusted p-values were less than 0.05?
+```{r}
+sum(res$padj < 0.05, na.rm=TRUE)
+
+```
+
+
+> ## Challenge 2
+> How many adjusted p-values were less than 0.1? 
+>
+> > ## Solution to Challenge 2
+> >
+> > sum(res$padj < 0.1, na.rm=TRUE) 
+> {: .solution}
+{: .challenge}
+
+
+### Function to convert ensembleIDs to common gene names
+We'll use a package to translate mouse ENSEMBL IDS to gene names. Run this function and they will be called up when assembling results from the differential expression analysis
+
+```{r}
+map_function.df <- function(x, inputtype, outputtype) {
+  mapIds(
+    org.Mm.eg.db,
+    keys = row.names(x),
+    column = outputtype,
+    keytype = inputtype,
+    multiVals = "first"
+  )
+}
+```
+
+### Generating Result table
+```{r warning=FALSE,message=FALSE}
+All_res <- as.data.frame(res) %>% 
+  mutate(symbol = map_function.df(res,"ENSEMBL","SYMBOL")) %>%    ##run map_function to add symbol of gene corresponding to ENSEBL ID
+  mutate(EntrezGene = map_function.df(res,"ENSEMBL","ENTREZID")) %>%  ##run map_function to add Entrez ID of gene corresponding to ENSEBL ID
+  dplyr::select("symbol", "EntrezGene","baseMean", "log2FoldChange", "lfcSE", "stat", "pvalue", "padj")
+
+head(All_res)
+```
+
+### Extracting genes that are significantly expressed
+
+```{r}
+dseq_res <- subset(All_res[order(All_res$padj), ], padj < 0.05)
+```
+Wow! We have a lot of genes with apparently very strong statistically significant differences between the control and 5xFAD carrier.
+
+```{r}
+dim(dseq_res)
+head(dseq_res)
+```
+
+## Exploring and exporting results
+
+#### Exporting results to CSV files
+we can save results file into a csv file like this:
+```{r}
+write.csv(All_res,file="../result/All_5xFAD_12months_male.csv")
+write.csv(dseq_res,file="../result/DEG_5xFAD_12months_male.csv")
+```
+
+## Volcano plot
+
+We can visualize the differential expression results using Volcano plot function from **EnhancedVolcano** package.
+For the most basic volcano plot, only a single data-frame, data-matrix, or tibble of test results is required, containing point labels, log2FC, and adjusted or unadjusted P values. The default cut-off for log2FC is >|2|; the default cut-off for P value is 10e-6.
+```{r volcanoplot}
+
+EnhancedVolcano(All_res,
+                                   lab = (All_res$symbol),
+                                   x = 'log2FoldChange',
+                                   y = 'padj',legendPosition = 'none',
+                                   title = 'Volcano plot:Differential Expression Results',
+                                   subtitle = '',
+                                   FCcutoff = 0.1,
+                                   pCutoff = 0.05,
+                                   xlim = c(-3, 6))
+
+```
+You can see that some top significantly expressed are immune/inflammation-related genes such as Ctsd, C4b, Csf1 etc. These genes are upregulated in the 5XFAD strain. 
+
+## Principal component plot of the samples
+```{r PCA, warning=FALSE,message=FALSE}
+ddsHTSeq <- DESeqDataSetFromMatrix(countData=as.matrix(rawdata), colData=metadata, design= ~ genotype)
+ddsHTSeq <- ddsHTSeq[rowSums(counts(ddsHTSeq)>1) >= 10, ]
+dds <- DESeq(ddsHTSeq,parallel = TRUE)
+vsd <- varianceStabilizingTransformation(dds, blind=FALSE)
+
+plotPCA(vsd, intgroup=c("genotype", "sex","timepoint"))
+```
+
+It is also possible to customize the PCA plot using the ggplot function.
+```{r PCA2, warning=FALSE,message=FALSE}
+pcaData <- plotPCA(vsd, intgroup=c("genotype", "sex","timepoint"), returnData=TRUE)
+percentVar <- round(100 * attr(pcaData, "percentVar"))
+ggplot(pcaData, aes(PC1, PC2,color=genotype, shape=sex)) + 
+  geom_point(size=3) +
+  geom_text(aes(label=timepoint),hjust=0.5, vjust=2,size =3.5) +
+  labs(x= paste0("PC1: ",percentVar[1],"% variance"), y= paste0("PC2: ",percentVar[2],"% variance"))
+
+
+```
+
+PCA identified genotype and sex being a major source of variation in between 5XFAD and WT mice. Female and male samples clustered distinctly at all ages, suggesting the presence of sex-biased molecular changes in animals. 
+
+## Function for Differential analysis using DESeq2
+
+Finally, we can built a function for differential analysis that consist of all above discussed steps. It will require to input sorted raw count matrix, sample metadata and define the reference group.
+```{r DEGFunction}
+DEG <- function(rawdata,meta,
+                   include.batch = FALSE,
+                   ref = ref) {
+  dseq_res <- data.frame()
+  All_res <- data.frame()
+  
+  if (include.batch) {
+    cat("Including batch as covariate\n")
+    design_formula <- ~ Batch + genotype
+  }
+  else{
+    design_formula <- ~ genotype
+  }
+  
+  dat2 <- as.matrix(rawdata[, colnames(rawdata) %in% rownames(meta)])
+  ddsHTSeq <-
+    DESeqDataSetFromMatrix(countData = dat2,
+                           colData = meta,
+                           design = design_formula)
+  ddsHTSeq <- ddsHTSeq[rowSums(counts(ddsHTSeq)) >= 10, ]
+  ddsHTSeq$genotype <- relevel(ddsHTSeq$genotype, ref = ref)
+  dds <- DESeq(ddsHTSeq, parallel = TRUE)
+  
+  res <- results(dds, alpha = 0.05)
+  #summary(res)
+  
+  res$symbol <- map_function.df(res,"ENSEMBL","SYMBOL")
+  
+  res$EntrezGene <- map_function.df(res,"ENSEMBL","ENTREZID")
+  
+  All_res <<- as.data.frame(res[, c("symbol", "EntrezGene","baseMean", "log2FoldChange", "lfcSE", "stat", "pvalue", "padj")])
+
+}
+
+```
+
+Let's use this function to analyze all groups present in our data.
+
+## Differential Analysis of all groups
+
+First, we add a **Group** column to our metadata table that will combine all variable of interest for that sample.
+```{r DE1, warning=FALSE,message=FALSE}
+metadata$Group <- paste0(metadata$genotype,"-",metadata$sex,"-",metadata$timepoint)
+
+unique(metadata$Group)
+```
+
+Next, we create a comparison table that has all cases and controls that we would like to compare with each other. Here I have made comparison group for age and sex-matched 5xFAD carriers vs 5xFAD_noncarriers:
+```{r}
+
+comparisons <-  data.frame(control=c("5XFAD_noncarrier-male-4 mo", "5XFAD_noncarrier-female-4 mo", "5XFAD_noncarrier-male-6 mo", 
+                                     "5XFAD_noncarrier-female-6 mo","5XFAD_noncarrier-male-12 mo", "5XFAD_noncarrier-female-12 mo"), 
+                           case=c("5XFAD_carrier-male-4 mo", "5XFAD_carrier-female-4 mo", "5XFAD_carrier-male-6 mo", 
+                                  "5XFAD_carrier-female-6 mo","5XFAD_carrier-male-12 mo", "5XFAD_carrier-female-12 mo")
+                           )
+```
+
+```{r}
+comparisons
+```
+
+
+Finally, we implement our DEG function on each comparison and store the result table in a list and data frame:
+```{r DE2, warning=FALSE,message=FALSE}
+# initiate a empty list and data frame to save results
+DE_5xFAD.list <- list()
+DE_5xFAD.df <- data.frame()
+
+for (i in 1:nrow(comparisons))
+  {
+    meta <- metadata[metadata$Group %in% comparisons[i,],]
+    DEG(rawdata,meta,ref = "5XFAD_noncarrier")
+    
+    #append results in data frame
+    DE_5xFAD.df <- rbind(DE_5xFAD.df,All_res %>% mutate(model="5xFAD",sex=unique(meta$sex),age=unique(meta$timepoint)))
+    
+    #append results in list
+    DE_5xFAD.list[[i]] <- All_res
+    names(DE_5xFAD.list)[i] <- paste0(comparisons[i,2])
+}
+```
+
+Let's explore the result stored in our list:
+```{r}
+names(DE_5xFAD.list)
+```
+
+We can easily extract result table for any group of interest by using **$** and name of group. Let's check top few rows from 5XFAD_carrier-male-4 mo group:
+```{r}
+head(DE_5xFAD.list$`5XFAD_carrier-male-4 mo`)
+```
+
+Let's check the result stored as dataframe:
+```{r}
+head(DE_5xFAD.df)
+```
+
+Check if result is present for all ages:
+```{r}
+unique((DE_5xFAD.df$age))
+```
+
+Check if result is present for both sexes:
+```{r}
+unique((DE_5xFAD.df$sex))
+```
+
+Check number of genes in each group:
+```{r}
+count(DE_5xFAD.df,model,sex,age)
+```
+
+#### Check number of genes significantly differentially expressed in all cases compared to age and sex-matched controls:
+```{r DE3, warning=FALSE,message=FALSE}
+degs.up <- map(DE_5xFAD.list, ~length(which(.x$padj<0.05 & .x$log2FoldChange>0)))
+degs.down <- map(DE_5xFAD.list, ~length(which(.x$padj<0.05 & .x$log2FoldChange<0)))
+deg <- data.frame(Cases=names(degs.up), Up_DEGs.pval.05=as.vector(unlist(degs.up)),Down_DEGs.pval.05=as.vector(unlist(degs.down)))
+knitr::kable(deg)
+```
+
+Interestingly, in females more genes are differentially expressed at 4 months and with age more genes are differentially expressed. Male mice is catching up female mice at later time-point.
+
+## Pathway Enrichment
+We may wish to look for enrichment of biological pathways in a list of differentially expressed genes. Here we will test for enrichment of KEGG pathways using  using enrichKEGG function in [clusterProfiler](https://bioconductor.org/packages/release/bioc/vignettes/clusterProfiler/inst/doc/clusterProfiler.html) package.
+```{r pathway,fig.width=8,fig.height=8}
+
+dat <- list(FAD_M_4=subset(DE_5xFAD.list$`5XFAD_carrier-male-4 mo`[order(DE_5xFAD.list$`5XFAD_carrier-male-4 mo`$padj), ], padj < 0.05) %>% pull(EntrezGene),
+            FAD_F_4=subset(DE_5xFAD.list$`5XFAD_carrier-female-4 mo`[order(DE_5xFAD.list$`5XFAD_carrier-female-4 mo`$padj), ], padj < 0.05) %>% pull(EntrezGene))
+
+## perform enrichment analysis
+enrich_pathway <- compareCluster(dat,
+                                 fun = "enrichKEGG",
+                                  pvalueCutoff = 0.05,
+                                  organism = "mmu"
+                                 )
+
+enrich_pathway@compareClusterResult$Description <- gsub(" - Mus musculus \\(house mouse)","",enrich_pathway@compareClusterResult$Description)
+```
+
+Let's plot top enriched functions using dotplot function of clusterProfiler package.
+```{r}
+clusterProfiler::dotplot(enrich_pathway,showCategory=10,font.size = 14,title="Enriched KEGG Pathways")
+```
+
+What does this plot infer?
+
+## Save Data for Next Lesson 
+
+We will use the results data in the next lesson. Save it now and we will load it at the beginning of the next lesson. We will use R’s save command to [save]((https://stat.ethz.ch/R-manual/R-devel/library/base/html/save.html)) the objects in compressed, binary format. The `save` command is useful when you want to save multiple objects in one file.
+```{r}
+save(DE_5xFAD.df,DE_5xFAD.list,file="../result/DEAnalysis_5XFAD.Rdata")
+```
+
+
+> ## Challenge 3
+> ## Challenge 3
+> Draw volcano plot for 6 months old female 5xFAD_carrier ? 
+>
+> > ## Solution to Challenge 3
+> >
+> > EnhancedVolcano(DE_5xFAD.list$`5XFAD_carrier-female-6 mo`,
+                                   lab = (DE_5xFAD.list$`5XFAD_carrier-female-6 mo`$symbol),
+                                   x = 'log2FoldChange',
+                                   y = 'padj',legendPosition = 'none',
+                                   title = 'Volcano plot:Differential Expression Results',
+                                   subtitle = '',
+                                   FCcutoff = 0.1,
+                                   pCutoff = 0.05,
+                                   xlim = c(-5, 5))
+> {: .solution}
+{: .challenge}
+
+
+### Loading RNA-Seq data from LOAD1 (APOE4*Trem2 Mouse Model)
+There is another RNA-Seq data from LOAD1 mouse cohort. This cohort has three distinct mice strains: 
+*APOE4: humanized Apoe knock-in strain, mouse Apoe allele was replaced by human APOE gene sequence; 
+*Trem2.R47H:knock out mutant of the Trem2, R47H point mutation with two silent mutation and 
+*APOE4.Trem2.R47H (LOAD1): double mutant strain carries humanized APOE (isoform 4) knock in mutation and R47H point mutation of the Trem2 gene. 
+
+Let's read the count data and sample metadata as we did for 5XFAD samples.
+```{r LOAD1, warning=FALSE,message=FALSE}
+counts <- read.delim("../data/htseqcounts_APTR.txt", check.names = FALSE)
+```
+
+```{r}
+ind_meta <- read.csv("../data/metadata_RNASEQ_ALLJAX_402Samples.csv") 
+```
+ 
+Let’s look at the first few rows.
+ 
+```{r}
+head(ind_meta)
+```
+Let's quickly explore the sample metadata:
+```{r}
+dim(ind_meta)
+```
+
+How many strains are in this sample metadata?
+```{r}
+table(ind_meta$Genotype)
+```
+
+How many samples are in each genotype for each sex and age group? 
+```{r}
+ind_meta %>% group_by(Sex,Genotype,Age) %>% count()
+```
+
+We notice that there is a column **Batch** in sample metadata. 
+
+Let's see how many samples are in each batch.
+```{r}
+table(ind_meta$Batch)
+```
+So, total 5 batches. In bulk RNA-Seq experiments, it is usually vital that we apply a correction for samples profiled in different batches. Due to tim-constraint we do not want to do it in this lesson. So, we will use samples from only one batch in this lesson. 
+
+Let's check which genotype are in which batch?
+```{r}
+table(ind_meta$Batch,ind_meta$Genotype)
+```
+We are going to use samples from Batch 1 as it has more samples and contain most of our LOAD1 cohort samples that we are interested. 
+
+Subset sample metadata for batch 1 only and Convert Mouse ID column to rownames.
+```{r}
+covar <- ind_meta %>% filter(Batch==1) %>% remove_rownames() %>% column_to_rownames(.,var="Mouse.ID")  
+```
+
+How many rows and columns are there in `covar`?
+```{r}
+dim(covar)
+```
+
+Let’s look at the first few rows.
+```{r}
+head(covar)
+```
+
+Check mouse strains and are there numbers in `covar`?
+```{r}
+table(covar$Genotype)
+```
+
+
+> ## Challenge 4
+> ## Challenge 4
+> How many samples are in each genotype for each sex and age group? 
+>
+> > ## Solution to Challenge 4
+> > covar %>% group_by(Sex,Genotype,Age) %>% count()
+> > 
+> {: .solution}
+{: .challenge}
+
+Let's explore count data.
+
+```{r}
+head(counts,n=5)
+```
+Converting the gene_id as rownames of count matrix
+```{r}
+counts <- counts %>% column_to_rownames(.,var="gene_ID") %>% as.data.frame()
+```
+
+How many rows and columns are there in `counts`?
+```{r}
+dim(counts)
+```
+In the counts matrix, genes are in rows and samples are in columns.
+
+There are 140 samples in batch 1 as we saw in `covar` and samples in counts matrix is 234. So, we need to subset counts matrix for samples in `covar`. 
+```{r}
+counts <- counts[,colnames(counts) %in% rownames(covar)]
+```
+
+```{r}
+dim(counts)
+```
+Now there are count data from 140 samples present in metadata.
+
+Check how many gene_ids are NOT from the mouse genome by searching for the string "MUS" (as in Mus musculus) in the rownames of count matrix
+```{r warning=FALSE,message=FALSE}
+counts[,1:6] %>% 
+  filter(!str_detect(rownames(.), "MUS"))
+```
+We see entry of gene id "ENSG00000130203". This is human APOE gene that has been quantified by our MODEL-AD RNA-Seq pipeline.  
+
+Here you can also check expression of mouse Apoe. 
+```{r}
+counts[rownames(counts) %in% "ENSMUSG00000002985",1:10]
+```
+Let's visualize the expression of mouse and human APOE gene across all samples using ggplot2 package.
+
+### Validation of mouse strains
+
+#First we convert the dataframe to longer format and join our covariates by MouseID
+```{r warning=FALSE,message=FALSE,fig.width=14,fig.height=10}
+count_tpose <- counts  %>%
+                rownames_to_column(.,var="gene_id") %>% 
+                filter(gene_id %in% c("ENSG00000130203","ENSMUSG00000002985")) %>% 
+                pivot_longer(.,cols = -"gene_id",names_to = "Mouse.ID",values_to="counts") %>% as.data.frame() %>%
+                left_join(ind_meta %>% mutate("Mouse.ID"=as.character(Mouse.ID)),by="Mouse.ID") %>% as.data.frame()
+head(count_tpose) 
+
+#make the age column a factor and re-order the levels
+count_tpose$Age <- factor(count_tpose$Age,levels=c(4,8,12))
+
+# rename the gene id to gene symbol
+count_tpose$gene_id[count_tpose$gene_id %in% "ENSG00000130203"] <- "Human APOE"
+count_tpose$gene_id[count_tpose$gene_id %in% "ENSMUSG00000002985"] <- "Mouse Apoe"
+```
+
+
+```{r warning=FALSE,message=FALSE,fig.width=14,fig.height=12}
+#Create simple box plots showing normalized counts by genotype and time point, faceted by sex.
+count_tpose %>% 
+  ggplot(aes(x=Age, y=counts, color=Genotype)) +
+  geom_boxplot() + 
+  geom_point(position=position_jitterdodge()) +
+  facet_wrap(~Sex+gene_id) +theme_bw()
+
+```
+
+You will notice expression of mouse Apoe is higher in samples carrying humanized APOE gene sequences but lower in other samples and vice-versa for human APOE. This also suggest that mouse Apoe gene has been correctly replaced by human APOE gene sequences in APOE4 and APOE4Trem strains. This way we can validated the insertion of human transgene.
+
+As before, we need to merge expression of human APOE and mouse Apoe:
+```{r warning=FALSE,message=FALSE}
+counts[rownames(counts) %in% "ENSMUSG00000002985",] <- counts[rownames(counts) %in% "ENSMUSG00000002985",] + counts[rownames(counts) %in% "ENSG00000130203",]
+counts <- counts[!rownames(counts) %in% c("ENSG00000130203"),]
+```
+
+Let's verify
+```{r}
+counts[,1:6] %>% 
+  filter(!str_detect(rownames(.), "MUS"))
+```
+
+Formatting the count and metadata for differential analysis
+```{r warning=FALSE,message=FALSE}
+rawdata <- counts[,sort(colnames(counts))]
+metadata <- covar[sort(rownames(covar)),] 
+
+## renaming column names
+colnames(metadata) <- c("sex","genotype","timepoint","Batch")
+
+metadata$sex[metadata$sex %in% "F"] <- "female"
+metadata$sex[metadata$sex %in% "M"] <- "male"
+```
+
+
+## Differential Analysis of all groups in LOAD1 cohort
+
+Next, we create a comparison table that has all cases and controls that we would like to compare with each other. Here I have made comparison group for age and sex-matched distinct mouse strains vs C57BL/6J (control mice):
+```{r DELOAD1, warning=FALSE,message=FALSE}
+metadata$Group <- paste0(metadata$genotype,"-",metadata$sex,"-",metadata$timepoint)
+comparisons <-  data.frame(
+                      control=rep(c("C57BL/6J-male-4", "C57BL/6J-female-4", "C57BL/6J-male-8", "C57BL/6J-female-8", "C57BL/6J-male-12", "C57BL/6J-female-12"),3), 
+                              case=c("APOE4-male-4", "APOE4-female-4", "APOE4-male-8", "APOE4-female-8", "APOE4-male-12", "APOE4-female-12",
+                                  "Trem2-male-4", "Trem2-female-4", "Trem2-male-8", "Trem2-female-8", "Trem2-male-12", "Trem2-female-12",
+                                  "APOE4Trem2-male-4", "APOE4Trem2-female-4", "APOE4Trem2-male-8", "APOE4Trem2-female-8", "APOE4Trem2-male-12", "APOE4Trem2-female-12")
+                      )
+head(comparisons)
+```
+
+
+Finally, we implement our DEG function on each comparison and store the result table in a list and data frame:
+```{r DELOAD2, warning=FALSE,message=FALSE}
+DE_LOAD1.list <- list()
+DE_LOAD1.df <- data.frame()
+
+for (i in 1:nrow(comparisons)){
+  meta <- metadata[metadata$Group %in% comparisons[i,],]
+  DEG(rawdata,meta,ref = "C57BL/6J")
+  
+  #append results in data frame
+  DE_LOAD1.df <- rbind(DE_LOAD1.df,All_res %>% mutate(model=gsub("-.*$","",comparisons[i,2])[1],sex=unique(meta$sex),age=unique(meta$timepoint)))
+  
+  #append results in list
+  DE_LOAD1.list[[i]] <- All_res
+  names(DE_LOAD1.list)[i] <- paste0(comparisons[i,2])
+}
+
+save(DE_LOAD1.df,DE_LOAD1.list,file="../result/DEAnalysis_LOAD1.Rdata")
+```
+
+check number of genes significantly expressed (adjusted p =0.05) in all cases compared to age and sex-matched controls:
+
+```{r number, warning=FALSE,message=FALSE}
+degs.up <- map(DE_LOAD1.list, ~length(which(.x$padj<0.05 & .x$log2FoldChange>0)))
+degs.down <- map(DE_LOAD1.list, ~length(which(.x$padj<0.05 & .x$log2FoldChange<0)))
+deg <- data.frame(comparison=names(degs.up), Up_DEGs.pval.05=as.vector(unlist(degs.up)),Down_DEGs.pval.05=as.vector(unlist(degs.down)))
+knitr::kable(deg)
+
+```
+
+> ## Challenge 5
+  > ## Challenge 5
+  > Save the data for next lesson?
+  >
+  > > ## Solution to Challenge 5
+  > > save(DE_LOAD1.df,DE_LOAD1.list,file="../result/DEAnalysis_LOAD1.Rdata")
+> > 
+  > {: .solution}
+{: .challenge}
+
+
+### Session Info
+```{r session_info,collapse=TRUE}
+sessionInfo()
+```
+
