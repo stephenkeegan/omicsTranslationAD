@@ -57,7 +57,7 @@ BiocManager::install(c("biomaRt", "AnnotationDbi", "GO.db", "org.Mm.eg.db", "org
 {: .r}
 
 Once the installation has finished, copy and paste the following commands into 
-the console to verify that both packages installed correctly.
+the console to verify that all packages installed correctly.
 
 ~~~
 library(tidyverse)
