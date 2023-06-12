@@ -1,0 +1,192 @@
+---
+source: Rmd
+title: "Differential Expression Analysis"
+teaching: 40
+exercises: 10
+questions:
+- "What transcriptomic changes we observe in mouse models carrying AD-related mutations?"
+objectives:
+- "Read in a count matrix and metadata."
+- "Understand the data from AD mouse models"
+- "Format the data for differential analysis"
+- "Perform differential analysis using DESeq2."
+- "Pathway enrichment of differentially expressed genes"
+- "Save data for next lessons"
+---
+
+```{r, include=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("03-")
+```
+
+Author: Ravi Pandey, Jackson Laboratory
+
+
+## LOAD libraries
+```{r libs, warning=FALSE}
+suppressPackageStartupMessages(library("DESeq2"))
+suppressPackageStartupMessages(library("ggplot2"))
+suppressPackageStartupMessages(library("AnnotationDbi"))
+suppressPackageStartupMessages(library("org.Mm.eg.db"))
+suppressPackageStartupMessages(library("GO.db"))
+suppressPackageStartupMessages(library("EnhancedVolcano"))
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(clusterProfiler))
+```
+
+
+
+## Reading Gene Expression Count matrix from  Previous Lesson
+In this lesson, we will use the raw counts matrix and metadata downloaded in the previous lesson and will perform differential expression analysis. 
+
+### RNA-Seq data from 5xFAD mouse models
+
+```{r load_data}
+counts <- read.delim("../data/htseqcounts_5XFAD.txt", check.names = FALSE)
+```
+
+Reading Sample Metadata from Previous Lesson
+```{r}
+covars <- readRDS("../data/covars_5XFAD.rds")
+```
+
+Let's explore the data: 
+
+Let’s look at the top of the metadata.
+```{r}
+head(covars)
+```
+
+identify distinct groups using sample metadata
+```{r}
+distinct(covars, sex, genotype, timepoint)
+```
+
+We're going to explore the data further using a series of Challenges. 
+You will be asked to look at the contents of some of the columns to see 
+how the data are 
+distributed.
+
+> ## Challenge 1
+> How many mice were used to produce this data? 
+>
+> > ## Solution to Challenge 1
+> >
+> > covars %>% group_by(sex,genotype,timepoint) %>% count()
+> > dplyr::count(metadata, sex, genotype,timepoint)
+> {: .solution}
+{: .challenge}
+
+
+How many rows and columns are there in `counts`?
+```{r}
+dim(counts)
+```
+
+In the counts matrix, genes are in rows and samples are in columns. Let’s look at the first few rows.
+
+```{r}
+head(counts,n=5)
+```
+
+As you can see, the gene ids are ENSEBL IDs. There is some risk that these may not be unique. Let’s check whether any of the gene symbols are duplicated. We will sum the number of duplicated gene symbols.
+
+```{r}
+sum(duplicated(rownames(counts)))
+```
+
+The sum equals zero, so there are no duplicated gene symbols, which is good. Similarly, samples should be unique. Once again, let's verify this:
+
+```{r}
+sum(duplicated(colnames(counts)))
+```
+
+
+### Formatting the count matrix
+Now, as we see that gene_id is in first column of count matrix, but we will need only count data in matrix, so we will change the gene_id column to rownames.  
+Converting the gene_id as rownames of count matrix
+```{r}
+counts <- counts %>% column_to_rownames(.,var="gene_id") %>% as.data.frame()
+```
+
+let's confirm if change is done correctly
+```{r}
+head(counts,n=5)
+```
+
+As you can see from count table there are some genes that start with **"ENSG"** and others start with **"ENSMUSG"**. **"ENSG"** referes to human gene ENSEMBL id and **"ENSMUSG"** refer to mouse ENSEMBL id. Let's check how many gene_ids are NOT from the mouse genome by searching for the string "MUS" (as in Mus musculus) in the rownames of count matrix
+```{r}
+counts[,1:6] %>% 
+  filter(!str_detect(rownames(.), "MUS"))
+```
+Ok, so we see there are two human genes in out count matrix. Why? What genes are they?
+
+
+Briefly, 5xFAD mouse strain harbors two human transgenes APP ("ENSG00000142192") and PSEN1 ("ENSG00000080815") and inserted into exon 2 of the mouse Thy1 gene. To validate 5XFAD strain and capture expression of human transgene APP and PS1, a custom mouse genomic sequences was created and we quantified expression of human as well as mouse App ("ENSMUSG00000022892") and Psen1 ("ENSMUSG00000019969") genes by our MODEL-AD RNA-Seq pipeline.
+
+### Validation of 5xFAD mouse strain
+
+#First we convert the dataframe to longer format and join our covariates by MouseID
+```{r warning=FALSE,fig.width=14,fig.height=10}
+count_tpose <- counts  %>%
+                rownames_to_column(.,var="gene_id") %>% 
+                filter(gene_id %in% c("ENSG00000080815","ENSMUSG00000019969","ENSG00000142192","ENSMUSG00000022892")) %>% 
+                pivot_longer(.,cols = -"gene_id",names_to = "specimenID",values_to="counts") %>% as.data.frame() %>%
+                left_join(covars ,by="specimenID") %>% as.data.frame()
+head(count_tpose) 
+
+#make the age column a factor and re-order the levels
+count_tpose$timepoint <- factor(count_tpose$timepoint,levels=c("4 mo","6 mo","12 mo"))
+
+# rename the gene id to gene symbol
+count_tpose$gene_id[count_tpose$gene_id %in% "ENSG00000142192"] <- "Human APP"
+count_tpose$gene_id[count_tpose$gene_id %in% "ENSG00000080815"] <- "Human PSEN1"
+count_tpose$gene_id[count_tpose$gene_id %in% "ENSMUSG00000022892"] <- "Mouse App"
+count_tpose$gene_id[count_tpose$gene_id %in% "ENSMUSG00000019969"] <- "Mouse Psen1"
+```
+
+
+```{r counts_boxplot}
+#Create simple box plots showing normalized counts by genotype and time point, faceted by sex.
+count_tpose %>% 
+  ggplot(aes(x=timepoint, y=counts, color=genotype)) +
+  geom_boxplot() + 
+  geom_point(position=position_jitterdodge()) +
+  facet_wrap(~sex+gene_id) +theme_bw()
+```
+You will notice expression of Human APP is higher in 5XFAD carriers but lower in non-carriers. However mouse App expressed in both 5XFAD carrier and non-carrier. 
+
+We are going to sum the counts from both ortholgous genes (human APP and mouse App; human PSEN1 and mouse Psen1) and save summed expression as expression of mouse genes, respectively to match with gene names in control mice.
+```{r}
+#merge mouse and human APP gene raw count
+counts[rownames(counts) %in% "ENSMUSG00000022892",] <- counts[rownames(counts) %in% "ENSMUSG00000022892",] + counts[rownames(counts) %in% "ENSG00000142192",]
+counts <- counts[!rownames(counts) %in% c("ENSG00000142192"),]
+
+#merge mouse and human PS1 gene raw count
+counts[rownames(counts) %in% "ENSMUSG00000019969",] <- counts[rownames(counts) %in% "ENSMUSG00000019969",] + counts[rownames(counts) %in% "ENSG00000080815",]
+counts <- counts[!rownames(counts) %in% c("ENSG00000080815"),]
+```
+
+Let's verify if expression of both human genes have been merged or not:
+```{r}
+counts[,1:6] %>% 
+  filter(!str_detect(rownames(.), "MUS"))
+```
+
+
+What proportion of genes have zero counts in all samples?
+```{r}
+gene_sums <- data.frame(gene_id = rownames(counts),
+                        sums    = Matrix::rowSums(counts))
+sum(gene_sums$sums == 0)
+```
+We can see that 9691 (17%) genes have no reads at all associated with them. In the next lesson, we will remove genes that have no counts in any samples.
+
+
+
+### Session Info
+```{r session_info,collapse=TRUE}
+sessionInfo()
+```
+
