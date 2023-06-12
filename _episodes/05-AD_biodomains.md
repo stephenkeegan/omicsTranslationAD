@@ -270,64 +270,6 @@ enr <- gseGO(gene.list, ont = 'all', OrgDb = org.Mm.eg.db, keyType = 'SYMBOL')
 ~~~
 {: .language-r}
 
-
-
-~~~
-preparing geneSet collections...
-~~~
-{: .output}
-
-
-
-~~~
-GSEA analysis...
-~~~
-{: .output}
-
-
-
-~~~
-Warning in fgseaMultilevel(pathways = pathways, stats = stats, minSize =
-minSize, : There were 23 pathways for which P-values were not calculated
-properly due to unbalanced (positive and negative) gene-level statistic values.
-For such pathways pval, padj, NES, log2err are set to NA. You can try to
-increase the value of the argument nPermSimple (for example set it nPermSimple
-= 10000)
-~~~
-{: .warning}
-
-
-
-~~~
-Warning in fgseaMultilevel(pathways = pathways, stats = stats, minSize =
-minSize, : For some of the pathways the P-values were likely overestimated. For
-such pathways log2err is set to NA.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning in fgseaMultilevel(pathways = pathways, stats = stats, minSize =
-minSize, : For some pathways, in reality P-values are less than 1e-10. You can
-set the `eps` argument to zero for better estimation.
-~~~
-{: .warning}
-
-
-
-~~~
-leading edge analysis...
-~~~
-{: .output}
-
-
-
-~~~
-done...
-~~~
-{: .output}
-
 How many significant terms are identified:  
 
 
@@ -339,7 +281,7 @@ enr@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()
 
 
 ~~~
-[1] 315
+[1] 291
 ~~~
 {: .output}
 
@@ -348,10 +290,8 @@ enr@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()
 >
 > > ## Solution to Challenge 2
 > >
-> > 1). `enr@result %>% filter(p.adjust <= 0.05, NES < 0) %>% pull(ID) %>% unique() %>% length()`  
-> >     29
-> >     `enr@result %>% filter(p.adjust <= 0.05, NES > 0) %>% pull(ID) %>% unique() %>% length()`
-> >     257
+> > `enr@result %>% filter(p.adjust <= 0.05, NES < 0) %>% pull(ID) %>% unique() %>% length()`  
+> > `enr@result %>% filter(p.adjust <= 0.05, NES > 0) %>% pull(ID) %>% unique() %>% length()`
 > {: .solution}
 {: .challenge}
 
@@ -593,18 +533,18 @@ arrange(bd.tally, desc(n_sig_term))
 # Rowwise: 
    domain                        n_term n_sig_term
    <chr>                          <int>      <int>
- 1 none                               0        146
- 2 Immune Response                  979        126
- 3 Synapse                         1379         10
- 4 Structural Stabilization         498          9
+ 1 none                               0        136
+ 2 Immune Response                  979        115
+ 3 Structural Stabilization         498          9
+ 4 Synapse                         1379          9
  5 Proteostasis                     758          8
  6 Apoptosis                        218          5
  7 Autophagy                        112          3
  8 Lipid Metabolism                 875          3
- 9 Endolysosome                     236          2
-10 Vasculature                      374          2
-11 Myelination                       66          1
-12 Mitochondrial Metabolism         532          1
+ 9 Vasculature                      374          2
+10 Myelination                       66          1
+11 Mitochondrial Metabolism         532          1
+12 Endolysosome                     236          0
 13 Epigenetic                       432          0
 14 Oxidative Stress                  98          0
 15 APP Metabolism                    37          0
@@ -616,7 +556,7 @@ arrange(bd.tally, desc(n_sig_term))
 ~~~
 {: .output}
 
-Many enriched terms don't map to a domain (134), but most do (170). Of those that do, the vast majority map into the `Immune Response` biodomain.  
+Many enriched terms don't map to a domain (134), but most do (156). Of those that do, the vast majority map into the `Immune Response` biodomain.  
 
 We can plot the enrichment results, stratified by biodomain:  
 
@@ -647,15 +587,13 @@ Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
 ~~~
 {: .warning}
 
 
 
 ~~~
-Warning: Removed 8 rows containing missing values (`geom_point()`).
+Warning: Removed 9 rows containing missing values (`geom_point()`).
 ~~~
 {: .warning}
 

@@ -198,7 +198,7 @@ gene.list <- DE_5xFAD.df %>%
 
 Now we'll test for enrichment:  
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 enr <- gseGO(gene.list, ont = 'all', OrgDb = org.Mm.eg.db, keyType = 'SYMBOL')
 ```
 
@@ -213,10 +213,8 @@ enr@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()
 >
 > > ## Solution to Challenge 2
 > >
-> > 1). `enr@result %>% filter(p.adjust <= 0.05, NES < 0) %>% pull(ID) %>% unique() %>% length()`  
-> >     29
-> >     `enr@result %>% filter(p.adjust <= 0.05, NES > 0) %>% pull(ID) %>% unique() %>% length()`
-> >     257
+> > `enr@result %>% filter(p.adjust <= 0.05, NES < 0) %>% pull(ID) %>% unique() %>% length()`  
+> > `enr@result %>% filter(p.adjust <= 0.05, NES > 0) %>% pull(ID) %>% unique() %>% length()`
 > {: .solution}
 {: .challenge}
 
