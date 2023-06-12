@@ -114,8 +114,8 @@ distributed.
 >
 > > ## Solution to Challenge 1
 > >
-> > covars %>% group_by(sex,genotype,timepoint) %>% count()
-> > dplyr::count(metadata, sex, genotype,timepoint)
+> > `covars %>% group_by(sex,genotype,timepoint) %>% count()`
+> > `dplyr::count(metadata, sex, genotype,timepoint)`
 > {: .solution}
 {: .challenge}
 
@@ -755,8 +755,7 @@ sum(res$padj < 0.05, na.rm=TRUE)
 > How many adjusted p-values were less than 0.1? 
 >
 > > ## Solution to Challenge 2
-> >
-> > sum(res$padj < 0.1, na.rm=TRUE) 
+> > `sum(res$padj < 0.1, na.rm=TRUE)` 
 > {: .solution}
 {: .challenge}
 
@@ -1319,20 +1318,18 @@ save(DE_5xFAD.df,DE_5xFAD.list,file="../result/DEAnalysis_5XFAD.Rdata")
 
 
 > ## Challenge 3
-> ## Challenge 3
 > Draw volcano plot for 6 months old female 5xFAD_carrier ? 
 >
 > > ## Solution to Challenge 3
-> >
-> > EnhancedVolcano(DE_5xFAD.list$`5XFAD_carrier-female-6 mo`,
-                                   lab = (DE_5xFAD.list$`5XFAD_carrier-female-6 mo`$symbol),
-                                   x = 'log2FoldChange',
-                                   y = 'padj',legendPosition = 'none',
-                                   title = 'Volcano plot:Differential Expression Results',
-                                   subtitle = '',
-                                   FCcutoff = 0.1,
-                                   pCutoff = 0.05,
-                                   xlim = c(-5, 5))
+> > `EnhancedVolcano(DE_5xFAD.list$`5XFAD_carrier-female-6 mo`,
+                                   lab = (DE_5xFAD.list$`5XFAD_carrier-female-6 mo`$symbol),`
+    `                              x = 'log2FoldChange',`
+    `                              y = 'padj',legendPosition = 'none',`
+    `                              title = 'Volcano plot:Differential Expression Results',`
+    `                               subtitle = '',`
+    `                               FCcutoff = 0.1,`
+    `                               pCutoff = 0.05,`
+    `                               xlim = c(-5, 5))`
 > {: .solution}
 {: .challenge}
 
@@ -1536,12 +1533,11 @@ table(covar$Genotype)
 
 
 > ## Challenge 4
-> ## Challenge 4
 > How many samples are in each genotype for each sex and age group? 
 >
 > > ## Solution to Challenge 4
-> > covar %>% group_by(Sex,Genotype,Age) %>% count()
-> > 
+> > `covar %>% group_by(Sex,Genotype,Age) %>% count()`
+> > ``
 > {: .solution}
 {: .challenge}
 
@@ -1936,8 +1932,8 @@ knitr::kable(deg)
   > Save the data for next lesson?
   >
   > > ## Solution to Challenge 5
-  > > save(DE_LOAD1.df,DE_LOAD1.list,file="../result/DEAnalysis_LOAD1.Rdata")
-> > 
+  > > `save(DE_LOAD1.df,DE_LOAD1.list,file="../result/DEAnalysis_LOAD1.Rdata")`
+> > ``
   > {: .solution}
 {: .challenge}
 
