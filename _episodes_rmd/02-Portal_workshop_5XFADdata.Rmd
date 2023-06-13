@@ -102,7 +102,7 @@ To download a single file from the AD Knowledge Portal, you can click the linked
 
 This filters the table to a single file. In the "Id" column for this `htseqcounts_5XFAD.txt` file, there is a unique Synapse ID (synID).
 
-<img src="../fig/synapse_screenshot1.png" width="400px">
+<img src="../fig/synapse_screenshot1.png" width="600px">
 
 We can then use that synID to download the file.
 
@@ -164,8 +164,7 @@ query$filepath
 > > 
 > > The function `synTableQuery()` returns a Synapse object wrapper around a CSV file that is automatically downloaded to a Synapse cache directory `.synapseCache` in your home directory. You can use `query$filepath` to see the path to the file in the Synapse cache.
 > >
-> > `query <- synTableQuery("SELECT * FROM syn11346063.37 WHERE ( ( `study` HAS ( 'Jax.IU.Pitt_5XFAD' ) ) AND ( `resourceType` = 'metadata' ) )")`
-> > 
+> > `query <- synTableQuery("SELECT * FROM syn11346063.37 WHERE ( ( \`study\` HAS ( 'Jax.IU.Pitt_5XFAD' ) ) AND ( \`resourceType\` = 'metadata' ) )")` <br />
 > > `query$filepath`
 > >
 > {: .solution}
