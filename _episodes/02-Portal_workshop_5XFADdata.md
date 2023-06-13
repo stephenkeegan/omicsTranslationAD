@@ -19,6 +19,7 @@ keypoints:
 
 
 
+Author: Sage Bionetworks
 ------------------------------------------------------------------------
 
 ## Setup
@@ -112,16 +113,30 @@ To download a single file from the AD Knowledge Portal, you can click the linked
 
 This filters the table to a single file. In the "Id" column for this `htseqcounts_5XFAD.txt` file, there is a unique Synapse ID (synID).
 
-![](images/Screenshot%202023-05-07%20at%2011.10.31%20AM.png){width="448"}
+![](../fig/synapse_screenshot1.png){width="448"}
 
 We can then use that synID to download the file.
 
 
 ~~~
 counts_id <- "syn22108847"
-synGet(counts_id, downloadLocation = "files/")
+synGet(counts_id, downloadLocation = "../data/")
 ~~~
 {: .language-r}
+
+> ## Challenge 1
+> Use [Explore Data](https://adknowledgeportal.synapse.org/Explore/Data) to find processed RNAseq data from the Jax.IU.Pitt_5XFAD Study 
+>
+> > ## Solution to Challenge 1
+> > This filters the table to a single file. In the "Id" column for this `htseqcounts_5XFAD.txt` file, there is a unique Synapse ID (synID).
+
+> > ![](../fig/synapse_screenshot1.png){width="448"}
+
+> > `counts_id <- "syn22108847"`,
+    `synGet(counts_id, downloadLocation = "../data/")`
+> {: .solution}
+{: .challenge}
+
 
 ### Bulk download files {#bulk-download-files}
 
@@ -150,7 +165,7 @@ query$filepath
 
 
 ~~~
-[1] "/Users/auyar/.synapseCache/275/125665275/SYNAPSE_TABLE_QUERY_125665275.csv"
+[1] "/Users/auyar/.synapseCache/777/125699777/SYNAPSE_TABLE_QUERY_125699777.csv"
 ~~~
 {: .output}
 
