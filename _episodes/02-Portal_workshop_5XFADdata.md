@@ -122,23 +122,6 @@ synGet(counts_id, downloadLocation = "../data/")
 ~~~
 {: .language-r}
 
-> ## Challenge 1
-> Use [Explore Data](https://adknowledgeportal.synapse.org/Explore/Data) to find processed RNAseq data from the Jax.IU.Pitt_5XFAD Study. 
->
-> > ## Solution to Challenge 1
-> > This filters the table to a single file. In the "Id" column for this `htseqcounts_5XFAD.txt` file, there is a unique Synapse ID (synID).
-> >
-> > <img src="../fig/synapse_screenshot1.png" width="400px">
-> >
-> > ~~~
-> > counts_id <- "syn22108847"
-> > synGet(counts_id, downloadLocation = "../data/")
-> > ~~~
-> > {: .language-r}
-> {: .solution}
-{: .challenge}
-
-
 
 ### Bulk download files {#bulk-download-files}
 
@@ -150,7 +133,7 @@ Use the facets and search bar to look for data you want to download from the AD 
 
 In the window that pops up, select the "R" tab from the top menu bar. This will display some R code that constructs a SQL query of the Synapse data table that drives the AD Knowledge Portal. This query will allow us to download only the files that meet our search criteria.
 
-<img src="../fig/synapse_screenshot3.png" width="400px">
+<img src="../fig/synapse_screenshot3.png" width="500px">
 
 The function `synTableQuery()` returns a Synapse object wrapper around a CSV file that is automatically downloaded to a Synapse cache directory `.synapseCache` in your home directory. You can use `query$filepath` to see the path to the file in the Synapse cache.
 
@@ -167,30 +150,9 @@ query$filepath
 
 
 ~~~
-[1] "/Users/auyar/.synapseCache/931/125700931/SYNAPSE_TABLE_QUERY_125700931.csv"
+[1] "/Users/auyar/.synapseCache/530/125701530/SYNAPSE_TABLE_QUERY_125701530.csv"
 ~~~
 {: .output}
-
-
-> ## Challenge 2
-> Use [Explore Studies](https://adknowledgeportal.synapse.org/Explore/Studies) to find all metadata files from the Jax.IU.Pitt_5XFAD study 
->
-> > ## Solution to Challenge 2
-> > Use the facets and search bar to look for data you want to download from the AD Knowledge Portal. Once you've identified the files you want, click on the download arrow icon on the top right of the Explore Data table and select "Programmatic Options" from the drop-down menu.
-> >
-> > <img src="../fig/synapse_screenshot2.png" width="400px">
-> >
-> > In the window that pops up, select the "R" tab from the top menu bar. This will display some R code that constructs a SQL query of the Synapse data table that drives the AD Knowledge Portal. This query will allow us to download only the files that meet our search criteria.
-> > 
-> > <img src="../fig/synapse_screenshot3.png" width="400px">
-> > 
-> > The function `synTableQuery()` returns a Synapse object wrapper around a CSV file that is automatically downloaded to a Synapse cache directory `.synapseCache` in your home directory. You can use `query$filepath` to see the path to the file in the Synapse cache.
-> >
-> > `query <- synTableQuery("SELECT * FROM syn11346063.37 WHERE ( ( `study` HAS ( 'Jax.IU.Pitt_5XFAD' ) ) AND ( `resourceType` = 'metadata' ) )")`
-> > `query$filepath`
-> >
-> {: .solution}
-{: .challenge}
 
 
 We'll use `read.csv` to read the CSV file into R (although the provided `read.table` or any other base R version is also fine!). We can explore the `download_table` object and see that it contains information on all of the AD Portal data files we want to download. Some columns like the "id" and "parentId" columns contain info about where the file is in Synapse, and some columns contain AD Portal annotations for each file, like "dataType", "specimenID", and "assay". This annotation table will later allow us to link downloaded files to additional metadata variables!
@@ -246,7 +208,7 @@ Congratulations, you have bulk downloaded files from the AD Knowledge Portal!
 
 We have now downloaded several metadata files and an RNAseq counts file from the portal. For our next exercises, we want to read those files in as R data so we can work with them.
 
-We can see from the `download_table` we got during the bulk download step that we have five metadata files. Two of these should be the individual and biospecimen files, and three of them are assay meetadata files.
+We can see from the `download_table` we got during the bulk download step that we have five metadata files. Two of these should be the individual and biospecimen files, and three of them are assay metadata files.
 
 
 ~~~
@@ -811,7 +773,7 @@ annotations_table %>%
 
 Multispecimen files in the AD Knowledge Portal are files that contain data or information from more than one specimen. They are not annotated with individualIDs or specimenIDs, since these files may contain numbers of specimens that exceed the annotation limits. These files are usually processed or summary data (gene counts, peptide quantifications, etc), and are always annotated with `isMultiSpecimen = TRUE`.
 
-If we look at the processed data files in the table of 5XFAD RNAseq file annotations we just downloaded , we will see that it isMultiSpecimen = TRUE, but individualID and specimenID are blank:
+If we look at the processed data files in the table of 5XFAD RNAseq file annotations we just downloaded, we will see that it isMultiSpecimen = TRUE, but individualID and specimenID are blank:
 
 
 ~~~
@@ -883,6 +845,46 @@ Call `lifecycle::last_lifecycle_warnings()` to see where this warning was genera
 #   nucleicAcidSource <lgl>, cellType <lgl>, fastingState <lgl>, …
 ~~~
 {: .output}
+
+> ## Challenge 1
+> Use [Explore Data](https://adknowledgeportal.synapse.org/Explore/Data) to find processed RNAseq data from the Jax.IU.Pitt_5XFAD Study. 
+>
+> > ## Solution to Challenge 1
+> > This filters the table to a single file. In the "Id" column for this `htseqcounts_5XFAD.txt` file, there is a unique Synapse ID (synID).
+> >
+> > <img src="../fig/synapse_screenshot1.png" width="400px">
+> >
+> > ~~~
+> > counts_id <- "syn22108847"
+> > synGet(counts_id, downloadLocation = "../data/")
+> > ~~~
+> > {: .language-r}
+> {: .solution}
+{: .challenge}
+
+
+> ## Challenge 2
+> Use [Explore Studies](https://adknowledgeportal.synapse.org/Explore/Studies) to find all metadata files from the Jax.IU.Pitt_5XFAD study 
+>
+> > ## Solution to Challenge 2
+> > Use the facets and search bar to look for data you want to download from the AD Knowledge Portal. Once you've identified the files you want, click on the download arrow icon on the top right of the Explore Data table and select "Programmatic Options" from the drop-down menu.
+> >
+> > <img src="../fig/synapse_screenshot2.png" width="400px">
+> >
+> > In the window that pops up, select the "R" tab from the top menu bar. This will display some R code that constructs a SQL query of the Synapse data table that drives the AD Knowledge Portal. This query will allow us to download only the files that meet our search criteria.
+> > 
+> > <img src="../fig/synapse_screenshot3.png" width="400px">
+> > 
+> > The function `synTableQuery()` returns a Synapse object wrapper around a CSV file that is automatically downloaded to a Synapse cache directory `.synapseCache` in your home directory. You can use `query$filepath` to see the path to the file in the Synapse cache.
+> >
+> > ~~~
+> > query <- synTableQuery("SELECT * FROM syn11346063.37 WHERE ( ( `study` HAS ( 'Jax.IU.Pitt_5XFAD' ) ) AND ( `resourceType` = 'metadata' ) )")
+> > `query$filepath`
+> >
+> > ~~~
+> > {: .language-r}
+> {: .solution}
+{: .challenge}
 
 
 
