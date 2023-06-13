@@ -130,10 +130,14 @@ synGet(counts_id, downloadLocation = "../data/")
 > >
 > > <img src="../fig/synapse_screenshot1.png" width="400px">
 > >
-> > `counts_id <- "syn22108847"`
-> > `synGet(counts_id, downloadLocation = "../data/")`
+> > ~~~
+> > counts_id <- "syn22108847"
+> > synGet(counts_id, downloadLocation = "../data/")
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
+
 
 
 ### Bulk download files {#bulk-download-files}
@@ -163,7 +167,7 @@ query$filepath
 
 
 ~~~
-[1] "/Users/auyar/.synapseCache/749/125700749/SYNAPSE_TABLE_QUERY_125700749.csv"
+[1] "/Users/auyar/.synapseCache/931/125700931/SYNAPSE_TABLE_QUERY_125700931.csv"
 ~~~
 {: .output}
 
@@ -182,7 +186,7 @@ query$filepath
 > > 
 > > The function `synTableQuery()` returns a Synapse object wrapper around a CSV file that is automatically downloaded to a Synapse cache directory `.synapseCache` in your home directory. You can use `query$filepath` to see the path to the file in the Synapse cache.
 > >
-> > `query <- synTableQuery("SELECT * FROM syn11346063.37 WHERE ( ( \`study\` HAS ( 'Jax.IU.Pitt_5XFAD' ) ) AND ( \`resourceType\` = 'metadata' ) )")` <br />
+> > `query <- synTableQuery("SELECT * FROM syn11346063.37 WHERE ( ( `study` HAS ( 'Jax.IU.Pitt_5XFAD' ) ) AND ( `resourceType` = 'metadata' ) )")`
 > > `query$filepath`
 > >
 > {: .solution}
