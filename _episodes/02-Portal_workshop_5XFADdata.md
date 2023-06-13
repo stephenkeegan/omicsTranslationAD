@@ -20,7 +20,6 @@ keypoints:
 
 
 Author: Sage Bionetworks
-------------------------------------------------------------------------
 
 ## Setup
 
@@ -99,7 +98,6 @@ synLogin()
 >
 > For more information on managing Synapse credentials with `synapser`, see the documentation [here](https://r-docs.synapse.org/articles/manageSynapseCredentials.html).
 
-------------------------------------------------------------------------
 
 ## Download data
 
@@ -113,7 +111,7 @@ To download a single file from the AD Knowledge Portal, you can click the linked
 
 This filters the table to a single file. In the "Id" column for this `htseqcounts_5XFAD.txt` file, there is a unique Synapse ID (synID).
 
-![](../fig/synapse_screenshot1.png){width="448"}
+![](../fig/synapse_screenshot1.png){width="224"}
 
 We can then use that synID to download the file.
 
@@ -129,11 +127,11 @@ synGet(counts_id, downloadLocation = "../data/")
 >
 > > ## Solution to Challenge 1
 > > This filters the table to a single file. In the "Id" column for this `htseqcounts_5XFAD.txt` file, there is a unique Synapse ID (synID).
-
-> > ![](../fig/synapse_screenshot1.png){width="448"}
-
+> >
+> > ![](../fig/synapse_screenshot1.png){width="224"}
+> >
 > > `counts_id <- "syn22108847"`,
-    `synGet(counts_id, downloadLocation = "../data/")`
+> > `synGet(counts_id, downloadLocation = "../data/")`
 > {: .solution}
 {: .challenge}
 
@@ -165,7 +163,7 @@ query$filepath
 
 
 ~~~
-[1] "/Users/auyar/.synapseCache/777/125699777/SYNAPSE_TABLE_QUERY_125699777.csv"
+[1] "/Users/auyar/.synapseCache/963/125699963/SYNAPSE_TABLE_QUERY_125699963.csv"
 ~~~
 {: .output}
 
