@@ -163,7 +163,7 @@ query$filepath
 
 
 ~~~
-[1] "/Users/auyar/.synapseCache/666/125700666/SYNAPSE_TABLE_QUERY_125700666.csv"
+[1] "/Users/auyar/.synapseCache/749/125700749/SYNAPSE_TABLE_QUERY_125700749.csv"
 ~~~
 {: .output}
 
