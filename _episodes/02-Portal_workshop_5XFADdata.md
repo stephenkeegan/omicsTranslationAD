@@ -111,7 +111,7 @@ To download a single file from the AD Knowledge Portal, you can click the linked
 
 This filters the table to a single file. In the "Id" column for this `htseqcounts_5XFAD.txt` file, there is a unique Synapse ID (synID).
 
-<img src="../fig/synapse_screenshot1.png" width="600px">
+<img src="../fig/synapse_screenshot1.png" width="400px">
 
 We can then use that synID to download the file.
 
@@ -123,12 +123,12 @@ synGet(counts_id, downloadLocation = "../data/")
 {: .language-r}
 
 > ## Challenge 1
-> Use [Explore Data](https://adknowledgeportal.synapse.org/Explore/Data) to find processed RNAseq data from the Jax.IU.Pitt_5XFAD Study 
+> Use [Explore Data](https://adknowledgeportal.synapse.org/Explore/Data) to find processed RNAseq data from the Jax.IU.Pitt_5XFAD Study. 
 >
 > > ## Solution to Challenge 1
 > > This filters the table to a single file. In the "Id" column for this `htseqcounts_5XFAD.txt` file, there is a unique Synapse ID (synID).
 > >
-> > <img src="../fig/synapse_screenshot1.png" width="600px">
+> > <img src="../fig/synapse_screenshot1.png" width="400px">
 > >
 > > `counts_id <- "syn22108847"`
 > > `synGet(counts_id, downloadLocation = "../data/")`
@@ -142,11 +142,11 @@ synGet(counts_id, downloadLocation = "../data/")
 
 Use the facets and search bar to look for data you want to download from the AD Knowledge Portal. Once you've identified the files you want, click on the download arrow icon on the top right of the Explore Data table and select "Programmatic Options" from the drop-down menu.
 
-![](images/download-programmatic-options.png){width="300"}
+<img src="../fig/synapse_screenshot2.png" width="400px">
 
 In the window that pops up, select the "R" tab from the top menu bar. This will display some R code that constructs a SQL query of the Synapse data table that drives the AD Knowledge Portal. This query will allow us to download only the files that meet our search criteria.
 
-![](images/Screenshot%202023-05-07%20at%2011.17.01%20AM.png){width="411"}
+<img src="../fig/synapse_screenshot3.png" width="400px">
 
 The function `synTableQuery()` returns a Synapse object wrapper around a CSV file that is automatically downloaded to a Synapse cache directory `.synapseCache` in your home directory. You can use `query$filepath` to see the path to the file in the Synapse cache.
 
@@ -163,9 +163,32 @@ query$filepath
 
 
 ~~~
-[1] "/Users/auyar/.synapseCache/174/125700174/SYNAPSE_TABLE_QUERY_125700174.csv"
+[1] "/Users/auyar/.synapseCache/594/125700594/SYNAPSE_TABLE_QUERY_125700594.csv"
 ~~~
 {: .output}
+
+
+> ## Challenge 2
+> Use [Explore Studies](https://adknowledgeportal.synapse.org/Explore/Studies) to find all metadata files from the Jax.IU.Pitt_5XFAD study 
+>
+> > ## Solution to Challenge 2
+> > Use the facets and search bar to look for data you want to download from the AD Knowledge Portal. Once you've identified the files you want, click on the download arrow icon on the top right of the Explore Data table and select "Programmatic Options" from the drop-down menu.
+> >
+> > <img src="../fig/synapse_screenshot2.png" width="400px">
+> >
+> > In the window that pops up, select the "R" tab from the top menu bar. This will display some R code that constructs a SQL query of the Synapse data table that drives the AD Knowledge Portal. This query will allow us to download only the files that meet our search criteria.
+> > 
+> > <img src="../fig/synapse_screenshot3.png" width="400px">
+> > 
+> > The function `synTableQuery()` returns a Synapse object wrapper around a CSV file that is automatically downloaded to a Synapse cache directory `.synapseCache` in your home directory. You can use `query$filepath` to see the path to the file in the Synapse cache.
+> >
+> > `query <- synTableQuery("SELECT * FROM syn11346063.37 WHERE ( ( `study` HAS ( 'Jax.IU.Pitt_5XFAD' ) ) AND ( `resourceType` = 'metadata' ) )")`
+> > 
+> > `query$filepath`
+> >
+> {: .solution}
+{: .challenge}
+
 
 We'll use `read.csv` to read the CSV file into R (although the provided `read.table` or any other base R version is also fine!). We can explore the `download_table` object and see that it contains information on all of the AD Portal data files we want to download. Some columns like the "id" and "parentId" columns contain info about where the file is in Synapse, and some columns contain AD Portal annotations for each file, like "dataType", "specimenID", and "assay". This annotation table will later allow us to link downloaded files to additional metadata variables!
 
@@ -204,7 +227,7 @@ Finally, we use a mapping function from the `purrr` package to loop through the 
 
 ~~~
 # loop through the column of synIDs and download each file
-purrr::walk(download_table$id, ~synGet(.x, downloadLocation = "files/"))
+purrr::walk(download_table$id, ~synGet(.x, downloadLocation = "../data/"))
 ~~~
 {: .language-r}
 
@@ -249,16 +272,16 @@ We are only interested in RNAseq data, so we will only read in the individual, b
 
 ~~~
 # counts matrix
-counts <- read_tsv("files/htseqcounts_5XFAD.txt", show_col_types = FALSE)
+counts <- read_tsv("../data/htseqcounts_5XFAD.txt", show_col_types = FALSE)
 
 # individual metadata
-ind_meta <- read_csv("files/Jax.IU.Pitt_5XFAD_individual_metadata.csv", show_col_types = FALSE)
+ind_meta <- read_csv("../data/Jax.IU.Pitt_5XFAD_individual_metadata.csv", show_col_types = FALSE)
 
 # biospecimen metadata
-bio_meta <- read_csv("files/Jax.IU.Pitt_5XFAD_biospecimen_metadata.csv", show_col_types = FALSE)
+bio_meta <- read_csv("../data/Jax.IU.Pitt_5XFAD_biospecimen_metadata.csv", show_col_types = FALSE)
 
 #assay metadata
-rna_meta <- read_csv("files/Jax.IU.Pitt_5XFAD_assay_RNAseq_metadata.csv", show_col_types = FALSE)
+rna_meta <- read_csv("../data/Jax.IU.Pitt_5XFAD_assay_RNAseq_metadata.csv", show_col_types = FALSE)
 ~~~
 {: .language-r}
 
@@ -511,6 +534,14 @@ joined_meta
 {: .output}
 
 We now have a very wide dataframe that contains all the available metadata on each specimen in the RNAseq data from this study. This procedure can be used to join the three types of metadata files for every study in the AD Knowledge Portal, allowing you to filter individuals and specimens as needed based on your analysis criteria!
+
+We will save joined_meta for the next lesson.
+
+
+~~~
+saveRDS(joined_meta, file = "../data/covars_5XFAD.rds")
+~~~
+{: .language-r}
 
 ### Single-specimen files
 
@@ -849,6 +880,9 @@ Call `lifecycle::last_lifecycle_warnings()` to see where this warning was genera
 #   nucleicAcidSource <lgl>, cellType <lgl>, fastingState <lgl>, …
 ~~~
 {: .output}
+
+
+
 
 ------------------------------------------------------------------------
 
