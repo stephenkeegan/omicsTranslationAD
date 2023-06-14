@@ -910,20 +910,20 @@ range(correlation_for_plot$correlation)
 ggplot2::ggplot() +
     ggplot2::geom_tile(data = data, ggplot2::aes(x = .data$module, y = .data$model_sex), colour = "black", fill = "white") +
     ggplot2::geom_point(data = dplyr::filter(data), ggplot2::aes(x = .data$module, y = .data$model_sex, colour = .data$correlation, size = abs(.data$correlation))) +
-    ggplot2::geom_point(data = dplyr::filter(data, .data$significant), ggplot2::aes(x = .data$module, y = .data$model_sex, colour = .data$correlation),color="black",shape=0,size=8) +
+    ggplot2::geom_point(data = dplyr::filter(data, .data$significant), ggplot2::aes(x = .data$module, y = .data$model_sex, colour = .data$correlation),color="black",shape=0,size=9) +
     ggplot2::scale_x_discrete(position = "top") +
     ggplot2::scale_size(guide = "none", limits = c(0, 0.4)) +
     ggplot2::scale_color_gradient2(limits = c(-0.4, 0.4), breaks = c(-0.4, 0, 0.4), low = "#85070C", high = "#164B6E", name = "Correlation", guide = ggplot2::guide_colorbar(ticks = FALSE)) +
     ggplot2::labs(x = NULL, y = NULL) +
     ggplot2::facet_grid( rows = dplyr::vars(.data$age),cols = dplyr::vars(.data$cluster_label), scales = "free", space = "free",switch = 'y') +
     ggplot2::theme(
-      strip.text.x = ggplot2::element_text(size = 8,colour = c("black")),
-      strip.text.y.left = ggplot2::element_text(angle = 0,size = 8),
+      strip.text.x = ggplot2::element_text(size = 10,colour = c("black")),
+      strip.text.y.left = ggplot2::element_text(angle = 0,size = 12),
       axis.ticks = ggplot2::element_blank(),
-      axis.text.x = ggplot2::element_text(angle = 90, hjust = 0, size = 8),
-      axis.text.y = ggplot2::element_text(angle = 0, size = 8),
+      axis.text.x = ggplot2::element_text(angle = 90, hjust = 0, size = 12),
+      axis.text.y = ggplot2::element_text(angle = 0, size = 12),
       panel.background = ggplot2::element_blank(),
-      plot.title = ggplot2::element_text(angle = 0, vjust = -54, hjust = 0.03,size=8,face="bold"),
+      plot.title = ggplot2::element_text(angle = 0, vjust = -54, hjust = 0.03,size=12,face="bold"),
       plot.title.position = "plot",
       panel.grid = ggplot2::element_blank(),
       legend.position = "right"
@@ -931,10 +931,9 @@ ggplot2::ggplot() +
 ~~~
 {: .language-r}
 
-<div class="figure" style="text-align: center">
-<img src="../fig/rmd-04-AMPAD1-1.png" alt="plot of chunk AMPAD1" width="612" />
-<p class="caption">plot of chunk AMPAD1</p>
-</div>
+
+
+
 In above plot, top row represent 30 AMP-AD modules grouped into 5 consensus clusters describing the major functional groups of AD-related alterations and left column represent mouse models. Positive correlations are shown in blue and negative correlations in red. Color intensity and size of the circles are proportional to the correlation coefficient.  Black square around dots represent significant correlation at p-value=0.05 and non-significant correlations are left blank. 
 
 Male and female 5XFAD mice display gene expression alterations across all five consensus clusters, with the most pronounced alterations observed in Consensus Cluster B, which consists of immune system pathways. 
