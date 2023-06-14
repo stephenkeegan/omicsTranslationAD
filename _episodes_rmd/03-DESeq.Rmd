@@ -73,8 +73,11 @@ distributed.
 >
 > > ## Solution to Challenge 1
 > >
-> > `covars %>% group_by(sex,genotype,timepoint) %>% count()`
-> > `dplyr::count(metadata, sex, genotype,timepoint)`
+> > ~~~
+> > covars %>% group_by(sex,genotype,timepoint) %>% count()
+> > dplyr::count(metadata, sex, genotype,timepoint)
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 
@@ -273,7 +276,10 @@ sum(res$padj < 0.05, na.rm=TRUE)
 > How many adjusted p-values were less than 0.1? 
 >
 > > ## Solution to Challenge 2
-> > `sum(res$padj < 0.1, na.rm=TRUE)` 
+> > ~~~
+> > sum(res$padj < 0.1, na.rm=TRUE) 
+> > ~~~
+> > {: .language-r
 > {: .solution}
 {: .challenge}
 
@@ -320,8 +326,8 @@ head(dseq_res)
 #### Exporting results to CSV files
 we can save results file into a csv file like this:
 ```{r}
-write.csv(All_res,file="../result/All_5xFAD_12months_male.csv")
-write.csv(dseq_res,file="../result/DEG_5xFAD_12months_male.csv")
+write.csv(All_res,file="../results/All_5xFAD_12months_male.csv")
+write.csv(dseq_res,file="../results/DEG_5xFAD_12months_male.csv")
 ```
 
 ## Volcano plot
@@ -520,7 +526,7 @@ What does this plot infer?
 
 We will use the results data in the next lesson. Save it now and we will load it at the beginning of the next lesson. We will use R’s save command to [save]((https://stat.ethz.ch/R-manual/R-devel/library/base/html/save.html)) the objects in compressed, binary format. The `save` command is useful when you want to save multiple objects in one file.
 ```{r}
-save(DE_5xFAD.df,DE_5xFAD.list,file="../result/DEAnalysis_5XFAD.Rdata")
+save(DE_5xFAD.df,DE_5xFAD.list,file="../results/DEAnalysis_5XFAD.Rdata")
 ```
 
 
@@ -528,15 +534,18 @@ save(DE_5xFAD.df,DE_5xFAD.list,file="../result/DEAnalysis_5XFAD.Rdata")
 > Draw volcano plot for 6 months old female 5xFAD_carrier ? 
 >
 > > ## Solution to Challenge 3
-> > `EnhancedVolcano(DE_5xFAD.list$`5XFAD_carrier-female-6 mo`,
-                                   lab = (DE_5xFAD.list$`5XFAD_carrier-female-6 mo`$symbol),`
-    `                              x = 'log2FoldChange',`
-    `                              y = 'padj',legendPosition = 'none',`
-    `                              title = 'Volcano plot:Differential Expression Results',`
-    `                               subtitle = '',`
-    `                               FCcutoff = 0.1,`
-    `                               pCutoff = 0.05,`
-    `                               xlim = c(-5, 5))`
+> > ~~~
+> > EnhancedVolcano(DE_5xFAD.list$`5XFAD_carrier-female-6 mo,
+                                  lab = (DE_5xFAD.list$`5XFAD_carrier-female-6 mo`$symbol),
+                                  x = 'log2FoldChange',
+                                  y = 'padj',legendPosition = 'none',
+                                  title = 'Volcano plot:Differential Expression Results',
+                                  subtitle = '',
+                                  FCcutoff = 0.1,
+                                  pCutoff = 0.05,
+                                  xlim = c(-5, 5))
+> > ~~~
+> > {: .language-r}                                   
 > {: .solution}
 {: .challenge}
 
@@ -615,8 +624,10 @@ table(covar$Genotype)
 > How many samples are in each genotype for each sex and age group? 
 >
 > > ## Solution to Challenge 4
-> > `covar %>% group_by(Sex,Genotype,Age) %>% count()`
-> > ``
+> > ~~~
+> > covar %>% group_by(Sex,Genotype,Age) %>% count()
+> > ~~~
+> > {: .language-r} 
 > {: .solution}
 {: .challenge}
 
@@ -748,7 +759,7 @@ for (i in 1:nrow(comparisons)){
   names(DE_LOAD1.list)[i] <- paste0(comparisons[i,2])
 }
 
-save(DE_LOAD1.df,DE_LOAD1.list,file="../result/DEAnalysis_LOAD1.Rdata")
+save(DE_LOAD1.df,DE_LOAD1.list,file="../results/DEAnalysis_LOAD1.Rdata")
 ```
 
 check number of genes significantly expressed (adjusted p =0.05) in all cases compared to age and sex-matched controls:
@@ -762,13 +773,14 @@ knitr::kable(deg)
 ```
 
 > ## Challenge 5
-  > ## Challenge 5
-  > Save the data for next lesson?
-  >
-  > > ## Solution to Challenge 5
-  > > `save(DE_LOAD1.df,DE_LOAD1.list,file="../result/DEAnalysis_LOAD1.Rdata")`
-> > ``
-  > {: .solution}
+> Save the data for next lesson?
+>
+> > ## Solution to Challenge 5
+> > ~~~
+> > save(DE_LOAD1.df,DE_LOAD1.list,file="../result/DEAnalysis_LOAD1.Rdata")
+> > ~~~
+> > {: .language-r} 
+> {: .solution}
 {: .challenge}
 
 

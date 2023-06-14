@@ -68,13 +68,22 @@ head(covars)
 
 
 ~~~
-        individualID specimenID    sex         genotype timepoint
-32043rh        32043    32043rh female    5XFAD_carrier     12 mo
-32044rh        32044    32044rh   male 5XFAD_noncarrier     12 mo
-32046rh        32046    32046rh   male 5XFAD_noncarrier     12 mo
-32047rh        32047    32047rh   male 5XFAD_noncarrier     12 mo
-32049rh        32049    32049rh female 5XFAD_noncarrier     12 mo
-32057rh        32057    32057rh female 5XFAD_noncarrier     12 mo
+# A tibble: 6 × 50
+  specimenID platform    RIN   rnaBatch libraryBatch sequencingBatch libraryPrep
+  <chr>      <chr>       <lgl>    <dbl>        <dbl>           <dbl> <chr>      
+1 32043rh    IlluminaNo… NA           1            1               1 polyAselec…
+2 32043rh    IlluminaNo… NA           1            1               1 polyAselec…
+3 32044rh    IlluminaNo… NA           1            1               1 polyAselec…
+4 32044rh    IlluminaNo… NA           1            1               1 polyAselec…
+5 32046rh    IlluminaNo… NA           1            1               1 polyAselec…
+6 32046rh    IlluminaNo… NA           1            1               1 polyAselec…
+# ℹ 43 more variables: libraryPreparationMethod <lgl>, isStranded <lgl>,
+#   readStrandOrigin <lgl>, runType <chr>, readLength <dbl>,
+#   individualID <dbl>, specimenIdSource <chr>, organ <chr>, tissue <chr>,
+#   BrodmannArea <lgl>, sampleStatus <chr>, tissueWeight <lgl>,
+#   tissueVolume <lgl>, nucleicAcidSource <lgl>, cellType <lgl>,
+#   fastingState <lgl>, isPostMortem <lgl>, samplingAge <lgl>, ...1 <dbl>,
+#   climbID <dbl>, microchipID <dbl>, birthID <chr>, matingID <chr>, …
 ~~~
 {: .output}
 
@@ -88,21 +97,11 @@ distinct(covars, sex, genotype, timepoint)
 
 
 ~~~
-           sex         genotype timepoint
-32043rh female    5XFAD_carrier     12 mo
-32044rh   male 5XFAD_noncarrier     12 mo
-32049rh female 5XFAD_noncarrier     12 mo
-46105rh female 5XFAD_noncarrier      6 mo
-46108rh   male 5XFAD_noncarrier      6 mo
-46131rh female 5XFAD_noncarrier      4 mo
-46877rh   male 5XFAD_noncarrier      4 mo
-46887rh female    5XFAD_carrier      4 mo
-32053rh   male    5XFAD_carrier     12 mo
-46111rh female    5XFAD_carrier      6 mo
-46865rh   male    5XFAD_carrier      6 mo
-46866rh   male    5XFAD_carrier      4 mo
+Error in `distinct()`:
+! Must use existing variables.
+✖ `timepoint` not found in `.data`.
 ~~~
-{: .output}
+{: .error}
 
 We're going to explore the data further using a series of Challenges. 
 You will be asked to look at the contents of some of the columns to see 
@@ -114,8 +113,11 @@ distributed.
 >
 > > ## Solution to Challenge 1
 > >
-> > `covars %>% group_by(sex,genotype,timepoint) %>% count()`
-> > `dplyr::count(metadata, sex, genotype,timepoint)`
+> > ~~~
+> > covars %>% group_by(sex,genotype,timepoint) %>% count()
+> > dplyr::count(metadata, sex, genotype,timepoint)
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 
@@ -359,20 +361,76 @@ head(count_tpose)
 
 
 ~~~
-          gene_id specimenID counts individualID    sex         genotype
-1 ENSG00000080815    32043rh  22554        32043 female    5XFAD_carrier
-2 ENSG00000080815    32044rh      0        32044   male 5XFAD_noncarrier
-3 ENSG00000080815    32046rh      0        32046   male 5XFAD_noncarrier
-4 ENSG00000080815    32047rh      0        32047   male 5XFAD_noncarrier
-5 ENSG00000080815    32048rh  16700        32048 female    5XFAD_carrier
-6 ENSG00000080815    32049rh      0        32049 female 5XFAD_noncarrier
-  timepoint
-1     12 mo
-2     12 mo
-3     12 mo
-4     12 mo
-5     12 mo
-6     12 mo
+          gene_id specimenID counts            platform RIN rnaBatch
+1 ENSG00000080815    32043rh  22554 IlluminaNovaseq6000  NA        1
+2 ENSG00000080815    32043rh  22554 IlluminaNovaseq6000  NA        1
+3 ENSG00000080815    32044rh      0 IlluminaNovaseq6000  NA        1
+4 ENSG00000080815    32044rh      0 IlluminaNovaseq6000  NA        1
+5 ENSG00000080815    32046rh      0 IlluminaNovaseq6000  NA        1
+6 ENSG00000080815    32046rh      0 IlluminaNovaseq6000  NA        1
+  libraryBatch sequencingBatch    libraryPrep libraryPreparationMethod
+1            1               1 polyAselection                       NA
+2            1               1 polyAselection                       NA
+3            1               1 polyAselection                       NA
+4            1               1 polyAselection                       NA
+5            1               1 polyAselection                       NA
+6            1               1 polyAselection                       NA
+  isStranded readStrandOrigin   runType readLength individualID
+1      FALSE               NA pairedEnd        101        32043
+2      FALSE               NA pairedEnd        101        32043
+3      FALSE               NA pairedEnd        101        32044
+4      FALSE               NA pairedEnd        101        32044
+5      FALSE               NA pairedEnd        101        32046
+6      FALSE               NA pairedEnd        101        32046
+  specimenIdSource organ      tissue BrodmannArea sampleStatus tissueWeight
+1             <NA> brain whole brain           NA       frozen           NA
+2             <NA> brain whole brain           NA       frozen           NA
+3             <NA> brain whole brain           NA       frozen           NA
+4             <NA> brain whole brain           NA       frozen           NA
+5             <NA> brain whole brain           NA       frozen           NA
+6             <NA> brain whole brain           NA       frozen           NA
+  tissueVolume nucleicAcidSource cellType fastingState isPostMortem samplingAge
+1           NA                NA       NA        FALSE         TRUE          NA
+2           NA                NA       NA        FALSE         TRUE          NA
+3           NA                NA       NA        FALSE         TRUE          NA
+4           NA                NA       NA        FALSE         TRUE          NA
+5           NA                NA       NA        FALSE         TRUE          NA
+6           NA                NA       NA        FALSE         TRUE          NA
+  ...1 climbID microchipID birthID matingID individualIdSource materialOrigin
+1   15  298456   288646853 RMO1223 M-108-17                JAX            JAX
+2   87  298456   288646853 RMO1223 M-108-17                JAX            JAX
+3   16  298457   289822454 RMO1223 M-108-17                JAX            JAX
+4   88  298457   289822454 RMO1223 M-108-17                JAX            JAX
+5   17  298459   289859181 RMO1223 M-108-17                JAX            JAX
+6   89  298459   289859181 RMO1223 M-108-17                JAX            JAX
+     sex species generation  dateBirth ageDeath ageDeathUnits brainWeight
+1 female   Mouse       N1F3 2018-03-19 10.81967        months       0.503
+2 female   Mouse       N1F3 2018-03-19 10.81967        months       0.503
+3   male   Mouse       N1F3 2018-03-19 10.81967        months       0.482
+4   male   Mouse       N1F3 2018-03-19 10.81967        months       0.482
+5   male   Mouse       N1F3 2018-03-19 10.81967        months       0.470
+6   male   Mouse       N1F3 2018-03-19 10.81967        months       0.470
+  rodentWeight rodentDiet bedding       room waterpH stockNumber
+1        28.76       0.06   aspen JAX_MGL373    2.85        8730
+2        28.76       0.06   aspen JAX_MGL373    2.85        8730
+3        46.51       0.06   aspen JAX_MGL373    2.85        8730
+4        46.51       0.06   aspen JAX_MGL373    2.85        8730
+5        41.00       0.06   aspen JAX_MGL373    2.85        8730
+6        41.00       0.06   aspen JAX_MGL373    2.85        8730
+          genotype genotypeBackground individualCommonGenotype modelSystemName
+1    5XFAD_carrier            C57BL6J                    5XFAD           5XFAD
+2    5XFAD_carrier            C57BL6J                    5XFAD           5XFAD
+3 5XFAD_noncarrier            C57BL6J                  C57BL6J           5XFAD
+4 5XFAD_noncarrier            C57BL6J                  C57BL6J           5XFAD
+5 5XFAD_noncarrier            C57BL6J                  C57BL6J           5XFAD
+6 5XFAD_noncarrier            C57BL6J                  C57BL6J           5XFAD
+                                         officialName
+1 B6.Cg-Tg(APPSwFlLon,PSEN1*M146L*L286V)6799Vas/Mmjax
+2 B6.Cg-Tg(APPSwFlLon,PSEN1*M146L*L286V)6799Vas/Mmjax
+3 B6.Cg-Tg(APPSwFlLon,PSEN1*M146L*L286V)6799Vas/Mmjax
+4 B6.Cg-Tg(APPSwFlLon,PSEN1*M146L*L286V)6799Vas/Mmjax
+5 B6.Cg-Tg(APPSwFlLon,PSEN1*M146L*L286V)6799Vas/Mmjax
+6 B6.Cg-Tg(APPSwFlLon,PSEN1*M146L*L286V)6799Vas/Mmjax
 ~~~
 {: .output}
 
@@ -381,7 +439,19 @@ head(count_tpose)
 ~~~
 #make the age column a factor and re-order the levels
 count_tpose$timepoint <- factor(count_tpose$timepoint,levels=c("4 mo","6 mo","12 mo"))
+~~~
+{: .language-r}
 
+
+
+~~~
+Error in `$<-.data.frame`(`*tmp*`, timepoint, value = structure(integer(0), levels = c("4 mo", : replacement has 0 rows, data has 576
+~~~
+{: .error}
+
+
+
+~~~
 # rename the gene id to gene symbol
 count_tpose$gene_id[count_tpose$gene_id %in% "ENSG00000142192"] <- "Human APP"
 count_tpose$gene_id[count_tpose$gene_id %in% "ENSG00000080815"] <- "Human PSEN1"
@@ -402,10 +472,16 @@ count_tpose %>%
 ~~~
 {: .language-r}
 
-<div class="figure" style="text-align: center">
-<img src="../fig/rmd-03-counts_boxplot-1.png" alt="plot of chunk counts_boxplot" width="612" />
-<p class="caption">plot of chunk counts_boxplot</p>
-</div>
+
+
+~~~
+Error in `geom_boxplot()`:
+! Problem while computing aesthetics.
+ℹ Error occurred in the 1st layer.
+Caused by error:
+! object 'timepoint' not found
+~~~
+{: .error}
 You will notice expression of Human APP is higher in 5XFAD carriers but lower in non-carriers. However mouse App expressed in both 5XFAD carrier and non-carrier. 
 
 We are going to sum the counts from both ortholgous genes (human APP and mouse App; human PSEN1 and mouse Psen1) and save summed expression as expression of mouse genes, respectively to match with gene names in control mice.
@@ -474,7 +550,28 @@ subset the counts matrix and sample metadata to include only 12 month old male m
 
 ~~~
 meta.12M.Male <- metadata[(metadata$sex=="male" & metadata$timepoint=='12 mo'),]
+~~~
+{: .language-r}
 
+
+
+~~~
+Warning: Unknown or uninitialised column: `timepoint`.
+~~~
+{: .warning}
+
+
+
+~~~
+Error in `metadata[(metadata$sex == "male" & metadata$timepoint == "12 mo"), ]`:
+! Can't subset rows with `(metadata$sex == "male" & metadata$timepoint == "12 mo")`.
+✖ Logical subscript `(metadata$sex == "male" & metadata$timepoint == "12 mo")` must be size 1 or 144, not 0.
+~~~
+{: .error}
+
+
+
+~~~
 meta.12M.Male
 ~~~
 {: .language-r}
@@ -482,26 +579,27 @@ meta.12M.Male
 
 
 ~~~
-        individualID specimenID  sex         genotype timepoint
-32044rh        32044    32044rh male 5XFAD_noncarrier     12 mo
-32046rh        32046    32046rh male 5XFAD_noncarrier     12 mo
-32047rh        32047    32047rh male 5XFAD_noncarrier     12 mo
-32053rh        32053    32053rh male    5XFAD_carrier     12 mo
-32059rh        32059    32059rh male    5XFAD_carrier     12 mo
-32061rh        32061    32061rh male 5XFAD_noncarrier     12 mo
-32062rh        32062    32062rh male    5XFAD_carrier     12 mo
-32073rh        32073    32073rh male 5XFAD_noncarrier     12 mo
-32074rh        32074    32074rh male 5XFAD_noncarrier     12 mo
-32075rh        32075    32075rh male    5XFAD_carrier     12 mo
-32088rh        32088    32088rh male    5XFAD_carrier     12 mo
-32640rh        32640    32640rh male    5XFAD_carrier     12 mo
+Error in eval(expr, envir, enclos): object 'meta.12M.Male' not found
 ~~~
-{: .output}
+{: .error}
 
 
 
 ~~~
 dat <- as.matrix(rawdata[,colnames(rawdata) %in% rownames(meta.12M.Male)])
+~~~
+{: .language-r}
+
+
+
+~~~
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'as.matrix': error in evaluating the argument 'table' in selecting a method for function '%in%': error in evaluating the argument 'x' in selecting a method for function 'rownames': object 'meta.12M.Male' not found
+~~~
+{: .error}
+
+
+
+~~~
 colnames(dat)
 ~~~
 {: .language-r}
@@ -509,10 +607,9 @@ colnames(dat)
 
 
 ~~~
- [1] "32044rh" "32046rh" "32047rh" "32053rh" "32059rh" "32061rh" "32062rh"
- [8] "32073rh" "32074rh" "32075rh" "32088rh" "32640rh"
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'colnames': object 'dat' not found
 ~~~
-{: .output}
+{: .error}
 
 
 
@@ -524,10 +621,9 @@ rownames(meta.12M.Male)
 
 
 ~~~
- [1] "32044rh" "32046rh" "32047rh" "32053rh" "32059rh" "32061rh" "32062rh"
- [8] "32073rh" "32074rh" "32075rh" "32088rh" "32640rh"
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'rownames': object 'meta.12M.Male' not found
 ~~~
-{: .output}
+{: .error}
 
 
 
@@ -539,9 +635,9 @@ match(colnames(dat),rownames(meta.12M.Male))
 
 
 ~~~
- [1]  1  2  3  4  5  6  7  8  9 10 11 12
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'match': error in evaluating the argument 'x' in selecting a method for function 'colnames': object 'dat' not found
 ~~~
-{: .output}
+{: .error}
 
 
 Next, we build the DESeqDataSet using the following function:
@@ -556,10 +652,9 @@ ddsHTSeq <- DESeqDataSetFromMatrix(countData=dat,
 
 
 ~~~
-Warning in DESeqDataSet(se, design = design, ignoreRank): some variables in
-design formula are characters, converting to factors
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'ncol': object 'dat' not found
 ~~~
-{: .warning}
+{: .error}
 
 
 
@@ -571,17 +666,9 @@ ddsHTSeq
 
 
 ~~~
-class: DESeqDataSet 
-dim: 55487 12 
-metadata(1): version
-assays(1): counts
-rownames(55487): ENSMUSG00000000001 ENSMUSG00000000003 ...
-  ENSMUSG00000118487 ENSMUSG00000118488
-rowData names(0):
-colnames(12): 32044rh 32046rh ... 32088rh 32640rh
-colData names(5): individualID specimenID sex genotype timepoint
+Error in eval(expr, envir, enclos): object 'ddsHTSeq' not found
 ~~~
-{: .output}
+{: .error}
 
 ### Pre-filtering
 While it is not necessary to pre-filter low count genes before running the DESeq2 functions, there are two reasons which make pre-filtering useful: by removing rows in which there are very few reads, we reduce the memory size of the dds data object, and we increase the speed of the transformation and testing functions within DESeq2. It can also improve visualizations, as features with no information for differential expression are not plotted.
@@ -590,7 +677,19 @@ Here we perform a minimal pre-filtering to keep only rows that have at least 10 
 
 ~~~
 ddsHTSeq <- ddsHTSeq[rowSums(counts(ddsHTSeq)) >= 10,]
+~~~
+{: .language-r}
 
+
+
+~~~
+Error in eval(expr, envir, enclos): object 'ddsHTSeq' not found
+~~~
+{: .error}
+
+
+
+~~~
 ddsHTSeq
 ~~~
 {: .language-r}
@@ -598,17 +697,9 @@ ddsHTSeq
 
 
 ~~~
-class: DESeqDataSet 
-dim: 33059 12 
-metadata(1): version
-assays(1): counts
-rownames(33059): ENSMUSG00000000001 ENSMUSG00000000028 ...
-  ENSMUSG00000118486 ENSMUSG00000118487
-rowData names(0):
-colnames(12): 32044rh 32046rh ... 32088rh 32640rh
-colData names(5): individualID specimenID sex genotype timepoint
+Error in eval(expr, envir, enclos): object 'ddsHTSeq' not found
 ~~~
-{: .output}
+{: .error}
 
 ### Reference level
 By default, R will choose a reference level for factors based on alphabetical order. Then, if you never tell the DESeq2 functions which level you want to compare against (e.g. which level represents the control group), the comparisons will be based on the alphabetical order of the levels.
@@ -620,6 +711,13 @@ ddsHTSeq$genotype <- relevel(ddsHTSeq$genotype,ref="5XFAD_noncarrier")
 ~~~
 {: .language-r}
 
+
+
+~~~
+Error in eval(expr, envir, enclos): object 'ddsHTSeq' not found
+~~~
+{: .error}
+
 Run the standard differential expression analysis steps that is wrapped into a single function, `DESeq`.
 
 ~~~
@@ -627,11 +725,31 @@ dds <- DESeq(ddsHTSeq,parallel = TRUE)
 ~~~
 {: .language-r}
 
+
+
+~~~
+Error in eval(expr, envir, enclos): object 'ddsHTSeq' not found
+~~~
+{: .error}
+
 Results tables are generated using the function `results`, which extracts a results table with log2 fold changes, p values and adjusted p values. By default the argument alpha is set to 0.1. If the adjusted p value cutoff will be a value other than 0.1, alpha should be set to that value:
 
 
 ~~~
 res <- results(dds,alpha=0.05)  # setting 0.05 as significant threshold
+~~~
+{: .language-r}
+
+
+
+~~~
+Error in eval(expr, envir, enclos): object 'dds' not found
+~~~
+{: .error}
+
+
+
+~~~
 res
 ~~~
 {: .language-r}
@@ -639,43 +757,27 @@ res
 
 
 ~~~
-log2 fold change (MLE): genotype 5XFAD carrier vs 5XFAD noncarrier 
-Wald test p-value: genotype 5XFAD carrier vs 5XFAD noncarrier 
-DataFrame with 33059 rows and 6 columns
-                    baseMean log2FoldChange     lfcSE      stat    pvalue
-                   <numeric>      <numeric> <numeric> <numeric> <numeric>
-ENSMUSG00000000001 3737.9009      0.0148125 0.0466948  0.317219 0.7510777
-ENSMUSG00000000028  138.5635     -0.0712500 0.1550130 -0.459639 0.6457754
-ENSMUSG00000000031   29.2983      0.6705922 0.3563441  1.881867 0.0598541
-ENSMUSG00000000037  123.6482     -0.2184054 0.1554362 -1.405113 0.1599876
-ENSMUSG00000000049   15.1733      0.3657555 0.3924376  0.932009 0.3513317
-...                      ...            ...       ...       ...       ...
-ENSMUSG00000118473   1.18647      -0.377971  1.531586 -0.246784  0.805075
-ENSMUSG00000118477  59.10359      -0.144081  0.226690 -0.635586  0.525046
-ENSMUSG00000118479  24.64566      -0.181992  0.341445 -0.533006  0.594029
-ENSMUSG00000118486   1.92048       0.199838  1.253875  0.159376  0.873372
-ENSMUSG00000118487  65.78311      -0.191362  0.218593 -0.875427  0.381342
-                        padj
-                   <numeric>
-ENSMUSG00000000001  0.943421
-ENSMUSG00000000028  0.913991
-ENSMUSG00000000031  0.352346
-ENSMUSG00000000037  0.566360
-ENSMUSG00000000049  0.765640
-...                      ...
-ENSMUSG00000118473        NA
-ENSMUSG00000118477  0.863565
-ENSMUSG00000118479  0.893356
-ENSMUSG00000118486        NA
-ENSMUSG00000118487  0.785845
+Error in eval(expr, envir, enclos): object 'res' not found
 ~~~
-{: .output}
+{: .error}
 
 We can order our results table by the smallest p value:
 
 ~~~
 resOrdered <- res[order(res$pvalue),]
+~~~
+{: .language-r}
 
+
+
+~~~
+Error in eval(expr, envir, enclos): object 'res' not found
+~~~
+{: .error}
+
+
+
+~~~
 head(resOrdered,n=10)
 ~~~
 {: .language-r}
@@ -683,35 +785,9 @@ head(resOrdered,n=10)
 
 
 ~~~
-log2 fold change (MLE): genotype 5XFAD carrier vs 5XFAD noncarrier 
-Wald test p-value: genotype 5XFAD carrier vs 5XFAD noncarrier 
-DataFrame with 10 rows and 6 columns
-                     baseMean log2FoldChange     lfcSE      stat       pvalue
-                    <numeric>      <numeric> <numeric> <numeric>    <numeric>
-ENSMUSG00000019969  13860.942        1.90740 0.0432685   44.0828  0.00000e+00
-ENSMUSG00000030579   2367.096        2.61215 0.0749325   34.8600 2.99877e-266
-ENSMUSG00000046805   7073.296        2.12247 0.0635035   33.4229 6.38260e-245
-ENSMUSG00000032011  80423.476        1.36195 0.0424006   32.1210 2.24185e-226
-ENSMUSG00000022892 271265.838        1.36140 0.0434167   31.3567 7.88666e-216
-ENSMUSG00000038642  10323.969        1.69717 0.0549488   30.8864 1.81838e-209
-ENSMUSG00000023992   2333.227        2.62290 0.0882818   29.7105 5.61657e-194
-ENSMUSG00000079293    761.313        5.12514 0.1738382   29.4822 4.86644e-191
-ENSMUSG00000040552    617.149        2.22726 0.0781799   28.4889 1.60622e-178
-ENSMUSG00000069516   2604.926        2.34471 0.0847390   27.6697 1.61585e-168
-                           padj
-                      <numeric>
-ENSMUSG00000019969  0.00000e+00
-ENSMUSG00000030579 3.60828e-262
-ENSMUSG00000046805 5.11991e-241
-ENSMUSG00000032011 1.34876e-222
-ENSMUSG00000022892 3.79585e-212
-ENSMUSG00000038642 7.29321e-206
-ENSMUSG00000023992 1.93090e-190
-ENSMUSG00000079293 1.46389e-187
-ENSMUSG00000040552 4.29486e-175
-ENSMUSG00000069516 3.88853e-165
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': object 'resOrdered' not found
 ~~~
-{: .output}
+{: .error}
 
 we can summarize some basic tallies using the summary function.
 
@@ -723,18 +799,9 @@ summary(res)
 
 
 ~~~
-
-out of 33059 with nonzero total read count
-adjusted p-value < 0.05
-LFC > 0 (up)       : 1098, 3.3%
-LFC < 0 (down)     : 505, 1.5%
-outliers [1]       : 33, 0.1%
-low counts [2]     : 8961, 27%
-(mean count < 8)
-[1] see 'cooksCutoff' argument of ?results
-[2] see 'independentFiltering' argument of ?results
+Error in h(simpleError(msg, call)): error in evaluating the argument 'object' in selecting a method for function 'summary': object 'res' not found
 ~~~
-{: .output}
+{: .error}
 
 How many adjusted p-values were less than 0.05?
 
@@ -746,16 +813,19 @@ sum(res$padj < 0.05, na.rm=TRUE)
 
 
 ~~~
-[1] 1603
+Error in eval(expr, envir, enclos): object 'res' not found
 ~~~
-{: .output}
+{: .error}
 
 
 > ## Challenge 2
 > How many adjusted p-values were less than 0.1? 
 >
 > > ## Solution to Challenge 2
-> > `sum(res$padj < 0.1, na.rm=TRUE)` 
+> > ~~~
+> > sum(res$padj < 0.1, na.rm=TRUE) 
+> > ~~~
+> > {: .language-r
 > {: .solution}
 {: .challenge}
 
@@ -784,7 +854,19 @@ All_res <- as.data.frame(res) %>%
   mutate(symbol = map_function.df(res,"ENSEMBL","SYMBOL")) %>%    ##run map_function to add symbol of gene corresponding to ENSEBL ID
   mutate(EntrezGene = map_function.df(res,"ENSEMBL","ENTREZID")) %>%  ##run map_function to add Entrez ID of gene corresponding to ENSEBL ID
   dplyr::select("symbol", "EntrezGene","baseMean", "log2FoldChange", "lfcSE", "stat", "pvalue", "padj")
+~~~
+{: .language-r}
 
+
+
+~~~
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'as.data.frame': object 'res' not found
+~~~
+{: .error}
+
+
+
+~~~
 head(All_res)
 ~~~
 {: .language-r}
@@ -792,22 +874,9 @@ head(All_res)
 
 
 ~~~
-                   symbol EntrezGene   baseMean log2FoldChange      lfcSE
-ENSMUSG00000000001  Gnai3      14679 3737.90089     0.01481247 0.04669482
-ENSMUSG00000000028  Cdc45      12544  138.56354    -0.07125004 0.15501305
-ENSMUSG00000000031    H19      14955   29.29832     0.67059217 0.35634414
-ENSMUSG00000000037  Scml2     107815  123.64823    -0.21840544 0.15543617
-ENSMUSG00000000049   Apoh      11818   15.17325     0.36575554 0.39243763
-ENSMUSG00000000056   Narf      67608 5017.30216    -0.06713961 0.04466809
-                         stat     pvalue      padj
-ENSMUSG00000000001  0.3172187 0.75107767 0.9434210
-ENSMUSG00000000028 -0.4596390 0.64577536 0.9139907
-ENSMUSG00000000031  1.8818667 0.05985412 0.3523457
-ENSMUSG00000000037 -1.4051134 0.15998757 0.5663600
-ENSMUSG00000000049  0.9320093 0.35133170 0.7656399
-ENSMUSG00000000056 -1.5030778 0.13281898 0.5203330
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': object 'All_res' not found
 ~~~
-{: .output}
+{: .error}
 
 ### Extracting genes that are significantly expressed
 
@@ -816,6 +885,13 @@ ENSMUSG00000000056 -1.5030778 0.13281898 0.5203330
 dseq_res <- subset(All_res[order(All_res$padj), ], padj < 0.05)
 ~~~
 {: .language-r}
+
+
+
+~~~
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'subset': object 'All_res' not found
+~~~
+{: .error}
 Wow! We have a lot of genes with apparently very strong statistically significant differences between the control and 5xFAD carrier.
 
 
@@ -827,9 +903,9 @@ dim(dseq_res)
 
 
 ~~~
-[1] 1603    8
+Error in eval(expr, envir, enclos): object 'dseq_res' not found
 ~~~
-{: .output}
+{: .error}
 
 
 
@@ -841,22 +917,9 @@ head(dseq_res)
 
 
 ~~~
-                   symbol EntrezGene   baseMean log2FoldChange      lfcSE
-ENSMUSG00000019969  Psen1      19164  13860.942       1.907397 0.04326854
-ENSMUSG00000030579 Tyrobp      22177   2367.096       2.612152 0.07493255
-ENSMUSG00000046805  Mpeg1      17476   7073.296       2.122467 0.06350346
-ENSMUSG00000032011   Thy1      21838  80423.476       1.361953 0.04240065
-ENSMUSG00000022892    App      11820 271265.838       1.361405 0.04341673
-ENSMUSG00000038642   Ctss      13040  10323.969       1.697172 0.05494882
-                       stat        pvalue          padj
-ENSMUSG00000019969 44.08278  0.000000e+00  0.000000e+00
-ENSMUSG00000030579 34.86005 2.998775e-266 3.608276e-262
-ENSMUSG00000046805 33.42286 6.382596e-245 5.119906e-241
-ENSMUSG00000032011 32.12104 2.241854e-226 1.348756e-222
-ENSMUSG00000022892 31.35669 7.886662e-216 3.795850e-212
-ENSMUSG00000038642 30.88641 1.818378e-209 7.293211e-206
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': object 'dseq_res' not found
 ~~~
-{: .output}
+{: .error}
 
 ## Exploring and exporting results
 
@@ -864,10 +927,30 @@ ENSMUSG00000038642 30.88641 1.818378e-209 7.293211e-206
 we can save results file into a csv file like this:
 
 ~~~
-write.csv(All_res,file="../result/All_5xFAD_12months_male.csv")
-write.csv(dseq_res,file="../result/DEG_5xFAD_12months_male.csv")
+write.csv(All_res,file="../results/All_5xFAD_12months_male.csv")
 ~~~
 {: .language-r}
+
+
+
+~~~
+Error in eval(expr, p): object 'All_res' not found
+~~~
+{: .error}
+
+
+
+~~~
+write.csv(dseq_res,file="../results/DEG_5xFAD_12months_male.csv")
+~~~
+{: .language-r}
+
+
+
+~~~
+Error in eval(expr, p): object 'dseq_res' not found
+~~~
+{: .error}
 
 ## Volcano plot
 
@@ -890,15 +973,9 @@ EnhancedVolcano(All_res,
 
 
 ~~~
-Warning: One or more p-values is 0. Converting to 10^-1 * current lowest
-non-zero p-value...
+Error in eval(expr, envir, enclos): object 'All_res' not found
 ~~~
-{: .warning}
-
-<div class="figure" style="text-align: center">
-<img src="../fig/rmd-03-volcanoplot-1.png" alt="plot of chunk volcanoplot" width="612" />
-<p class="caption">plot of chunk volcanoplot</p>
-</div>
+{: .error}
 You can see that some top significantly expressed are immune/inflammation-related genes such as Ctsd, C4b, Csf1 etc. These genes are upregulated in the 5XFAD strain. 
 
 ## Principal component plot of the samples
@@ -911,15 +988,27 @@ ddsHTSeq <- DESeqDataSetFromMatrix(countData=as.matrix(rawdata), colData=metadat
 
 
 ~~~
-Warning in DESeqDataSet(se, design = design, ignoreRank): some variables in
-design formula are characters, converting to factors
+Error in DESeqDataSetFromMatrix(countData = as.matrix(rawdata), colData = metadata, : ncol(countData) == nrow(colData) is not TRUE
 ~~~
-{: .warning}
+{: .error}
 
 
 
 ~~~
 ddsHTSeq <- ddsHTSeq[rowSums(counts(ddsHTSeq)>1) >= 10, ]
+~~~
+{: .language-r}
+
+
+
+~~~
+Error in eval(expr, envir, enclos): object 'ddsHTSeq' not found
+~~~
+{: .error}
+
+
+
+~~~
 dds <- DESeq(ddsHTSeq,parallel = TRUE)
 ~~~
 {: .language-r}
@@ -927,80 +1016,69 @@ dds <- DESeq(ddsHTSeq,parallel = TRUE)
 
 
 ~~~
-estimating size factors
+Error in eval(expr, envir, enclos): object 'ddsHTSeq' not found
 ~~~
-{: .output}
-
-
-
-~~~
-estimating dispersions
-~~~
-{: .output}
-
-
-
-~~~
-gene-wise dispersion estimates: 8 workers
-~~~
-{: .output}
-
-
-
-~~~
-mean-dispersion relationship
-~~~
-{: .output}
-
-
-
-~~~
-final dispersion estimates, fitting model and testing: 8 workers
-~~~
-{: .output}
-
-
-
-~~~
--- replacing outliers and refitting for 42 genes
--- DESeq argument 'minReplicatesForReplace' = 7 
--- original counts are preserved in counts(dds)
-~~~
-{: .output}
-
-
-
-~~~
-estimating dispersions
-~~~
-{: .output}
-
-
-
-~~~
-fitting model and testing
-~~~
-{: .output}
+{: .error}
 
 
 
 ~~~
 vsd <- varianceStabilizingTransformation(dds, blind=FALSE)
+~~~
+{: .language-r}
 
+
+
+~~~
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'colnames': object 'dds' not found
+~~~
+{: .error}
+
+
+
+~~~
 plotPCA(vsd, intgroup=c("genotype", "sex","timepoint"))
 ~~~
 {: .language-r}
 
-<div class="figure" style="text-align: center">
-<img src="../fig/rmd-03-PCA-1.png" alt="plot of chunk PCA" width="612" />
-<p class="caption">plot of chunk PCA</p>
-</div>
+
+
+~~~
+Error in h(simpleError(msg, call)): error in evaluating the argument 'object' in selecting a method for function 'plotPCA': object 'vsd' not found
+~~~
+{: .error}
 
 It is also possible to customize the PCA plot using the ggplot function.
 
 ~~~
 pcaData <- plotPCA(vsd, intgroup=c("genotype", "sex","timepoint"), returnData=TRUE)
+~~~
+{: .language-r}
+
+
+
+~~~
+Error in h(simpleError(msg, call)): error in evaluating the argument 'object' in selecting a method for function 'plotPCA': object 'vsd' not found
+~~~
+{: .error}
+
+
+
+~~~
 percentVar <- round(100 * attr(pcaData, "percentVar"))
+~~~
+{: .language-r}
+
+
+
+~~~
+Error in eval(expr, envir, enclos): object 'pcaData' not found
+~~~
+{: .error}
+
+
+
+~~~
 ggplot(pcaData, aes(PC1, PC2,color=genotype, shape=sex)) + 
   geom_point(size=3) +
   geom_text(aes(label=timepoint),hjust=0.5, vjust=2,size =3.5) +
@@ -1008,10 +1086,12 @@ ggplot(pcaData, aes(PC1, PC2,color=genotype, shape=sex)) +
 ~~~
 {: .language-r}
 
-<div class="figure" style="text-align: center">
-<img src="../fig/rmd-03-PCA2-1.png" alt="plot of chunk PCA2" width="612" />
-<p class="caption">plot of chunk PCA2</p>
-</div>
+
+
+~~~
+Error in eval(expr, envir, enclos): object 'pcaData' not found
+~~~
+{: .error}
 
 PCA identified genotype and sex being a major source of variation in between 5XFAD and WT mice. Female and male samples clustered distinctly at all ages, suggesting the presence of sex-biased molecular changes in animals. 
 
@@ -1072,12 +1152,8 @@ unique(metadata$Group)
 
 
 ~~~
- [1] "5XFAD_carrier-female-12 mo"    "5XFAD_noncarrier-male-12 mo"  
- [3] "5XFAD_noncarrier-female-12 mo" "5XFAD_carrier-male-12 mo"     
- [5] "5XFAD_noncarrier-female-6 mo"  "5XFAD_noncarrier-male-6 mo"   
- [7] "5XFAD_carrier-female-6 mo"     "5XFAD_noncarrier-female-4 mo" 
- [9] "5XFAD_carrier-female-4 mo"     "5XFAD_carrier-male-6 mo"      
-[11] "5XFAD_carrier-male-4 mo"       "5XFAD_noncarrier-male-4 mo"   
+[1] "5XFAD_carrier-female-"    "5XFAD_noncarrier-female-"
+[3] "5XFAD_carrier-male-"      "5XFAD_noncarrier-male-"  
 ~~~
 {: .output}
 
@@ -1134,6 +1210,13 @@ for (i in 1:nrow(comparisons))
 ~~~
 {: .language-r}
 
+
+
+~~~
+Error in DESeqDataSet(se, design = design, ignoreRank): counts matrix should be numeric, currently it has mode: logical
+~~~
+{: .error}
+
 Let's explore the result stored in our list:
 
 ~~~
@@ -1144,9 +1227,7 @@ names(DE_5xFAD.list)
 
 
 ~~~
-[1] "5XFAD_carrier-male-4 mo"    "5XFAD_carrier-female-4 mo" 
-[3] "5XFAD_carrier-male-6 mo"    "5XFAD_carrier-female-6 mo" 
-[5] "5XFAD_carrier-male-12 mo"   "5XFAD_carrier-female-12 mo"
+NULL
 ~~~
 {: .output}
 
@@ -1160,20 +1241,7 @@ head(DE_5xFAD.list$`5XFAD_carrier-male-4 mo`)
 
 
 ~~~
-                   symbol EntrezGene   baseMean log2FoldChange     lfcSE
-ENSMUSG00000000001  Gnai3      14679 3707.53159   -0.023085865 0.0381646
-ENSMUSG00000000028  Cdc45      12544  159.76225   -0.009444949 0.1322609
-ENSMUSG00000000031    H19      14955   35.96987    0.453401555 0.2785245
-ENSMUSG00000000037  Scml2     107815  126.82414    0.089394561 0.1377406
-ENSMUSG00000000049   Apoh      11818   19.99721    0.115325837 0.3154875
-ENSMUSG00000000056   Narf      67608 5344.21741   -0.100413295 0.0381182
-                          stat      pvalue      padj
-ENSMUSG00000000001 -0.60490264 0.545243691 0.9999518
-ENSMUSG00000000028 -0.07141148 0.943070275 0.9999518
-ENSMUSG00000000031  1.62786960 0.103552539 0.9999518
-ENSMUSG00000000037  0.64900659 0.516334116 0.9999518
-ENSMUSG00000000049  0.36554806 0.714702337 0.9999518
-ENSMUSG00000000056 -2.63426085 0.008432068 0.5696800
+NULL
 ~~~
 {: .output}
 
@@ -1187,20 +1255,7 @@ head(DE_5xFAD.df)
 
 
 ~~~
-                   symbol EntrezGene   baseMean log2FoldChange     lfcSE
-ENSMUSG00000000001  Gnai3      14679 3707.53159   -0.023085865 0.0381646
-ENSMUSG00000000028  Cdc45      12544  159.76225   -0.009444949 0.1322609
-ENSMUSG00000000031    H19      14955   35.96987    0.453401555 0.2785245
-ENSMUSG00000000037  Scml2     107815  126.82414    0.089394561 0.1377406
-ENSMUSG00000000049   Apoh      11818   19.99721    0.115325837 0.3154875
-ENSMUSG00000000056   Narf      67608 5344.21741   -0.100413295 0.0381182
-                          stat      pvalue      padj model  sex  age
-ENSMUSG00000000001 -0.60490264 0.545243691 0.9999518 5xFAD male 4 mo
-ENSMUSG00000000028 -0.07141148 0.943070275 0.9999518 5xFAD male 4 mo
-ENSMUSG00000000031  1.62786960 0.103552539 0.9999518 5xFAD male 4 mo
-ENSMUSG00000000037  0.64900659 0.516334116 0.9999518 5xFAD male 4 mo
-ENSMUSG00000000049  0.36554806 0.714702337 0.9999518 5xFAD male 4 mo
-ENSMUSG00000000056 -2.63426085 0.008432068 0.5696800 5xFAD male 4 mo
+data frame with 0 columns and 0 rows
 ~~~
 {: .output}
 
@@ -1214,7 +1269,7 @@ unique((DE_5xFAD.df$age))
 
 
 ~~~
-[1] "4 mo"  "6 mo"  "12 mo"
+NULL
 ~~~
 {: .output}
 
@@ -1228,7 +1283,7 @@ unique((DE_5xFAD.df$sex))
 
 
 ~~~
-[1] "male"   "female"
+NULL
 ~~~
 {: .output}
 
@@ -1242,15 +1297,13 @@ count(DE_5xFAD.df,model,sex,age)
 
 
 ~~~
-  model    sex   age     n
-1 5xFAD female 12 mo 33120
-2 5xFAD female  4 mo 32930
-3 5xFAD female  6 mo 33249
-4 5xFAD   male 12 mo 33059
-5 5xFAD   male  4 mo 33119
-6 5xFAD   male  6 mo 33375
+Error in `count()`:
+! Must group by variables found in `.data`.
+Column `model` is not found.
+Column `sex` is not found.
+Column `age` is not found.
 ~~~
-{: .output}
+{: .error}
 
 #### Check number of genes significantly differentially expressed in all cases compared to age and sex-matched controls:
 
@@ -1262,17 +1315,6 @@ knitr::kable(deg)
 ~~~
 {: .language-r}
 
-
-
-|Cases                      | Up_DEGs.pval.05| Down_DEGs.pval.05|
-|:--------------------------|---------------:|-----------------:|
-|5XFAD_carrier-male-4 mo    |              86|                11|
-|5XFAD_carrier-female-4 mo  |             522|                90|
-|5XFAD_carrier-male-6 mo    |             714|               488|
-|5XFAD_carrier-female-6 mo  |            1081|               409|
-|5XFAD_carrier-male-12 mo   |            1098|               505|
-|5XFAD_carrier-female-12 mo |            1494|              1023|
-
 Interestingly, in females more genes are differentially expressed at 4 months and with age more genes are differentially expressed. Male mice is catching up female mice at later time-point.
 
 ## Pathway Enrichment
@@ -1281,17 +1323,48 @@ We may wish to look for enrichment of biological pathways in a list of different
 ~~~
 dat <- list(FAD_M_4=subset(DE_5xFAD.list$`5XFAD_carrier-male-4 mo`[order(DE_5xFAD.list$`5XFAD_carrier-male-4 mo`$padj), ], padj < 0.05) %>% pull(EntrezGene),
             FAD_F_4=subset(DE_5xFAD.list$`5XFAD_carrier-female-4 mo`[order(DE_5xFAD.list$`5XFAD_carrier-female-4 mo`$padj), ], padj < 0.05) %>% pull(EntrezGene))
+~~~
+{: .language-r}
 
+
+
+~~~
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'subset': argument 1 is not a vector
+~~~
+{: .error}
+
+
+
+~~~
 ## perform enrichment analysis
 enrich_pathway <- compareCluster(dat,
                                  fun = "enrichKEGG",
                                   pvalueCutoff = 0.05,
                                   organism = "mmu"
                                  )
+~~~
+{: .language-r}
 
+
+
+~~~
+Error in eval(expr, envir, enclos): object 'dat' not found
+~~~
+{: .error}
+
+
+
+~~~
 enrich_pathway@compareClusterResult$Description <- gsub(" - Mus musculus \\(house mouse)","",enrich_pathway@compareClusterResult$Description)
 ~~~
 {: .language-r}
+
+
+
+~~~
+Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'gsub': object 'enrich_pathway' not found
+~~~
+{: .error}
 
 Let's plot top enriched functions using dotplot function of clusterProfiler package.
 
@@ -1300,10 +1373,12 @@ clusterProfiler::dotplot(enrich_pathway,showCategory=10,font.size = 14,title="En
 ~~~
 {: .language-r}
 
-<div class="figure" style="text-align: center">
-<img src="../fig/rmd-03-pathways-1.png" alt="plot of chunk pathways" width="612" />
-<p class="caption">plot of chunk pathways</p>
-</div>
+
+
+~~~
+Error in h(simpleError(msg, call)): error in evaluating the argument 'object' in selecting a method for function 'dotplot': object 'enrich_pathway' not found
+~~~
+{: .error}
 
 What does this plot infer?
 
@@ -1312,7 +1387,7 @@ What does this plot infer?
 We will use the results data in the next lesson. Save it now and we will load it at the beginning of the next lesson. We will use R’s save command to [save]((https://stat.ethz.ch/R-manual/R-devel/library/base/html/save.html)) the objects in compressed, binary format. The `save` command is useful when you want to save multiple objects in one file.
 
 ~~~
-save(DE_5xFAD.df,DE_5xFAD.list,file="../result/DEAnalysis_5XFAD.Rdata")
+save(DE_5xFAD.df,DE_5xFAD.list,file="../results/DEAnalysis_5XFAD.Rdata")
 ~~~
 {: .language-r}
 
@@ -1321,15 +1396,18 @@ save(DE_5xFAD.df,DE_5xFAD.list,file="../result/DEAnalysis_5XFAD.Rdata")
 > Draw volcano plot for 6 months old female 5xFAD_carrier ? 
 >
 > > ## Solution to Challenge 3
-> > `EnhancedVolcano(DE_5xFAD.list$`5XFAD_carrier-female-6 mo`,
-                                   lab = (DE_5xFAD.list$`5XFAD_carrier-female-6 mo`$symbol),`
-    `                              x = 'log2FoldChange',`
-    `                              y = 'padj',legendPosition = 'none',`
-    `                              title = 'Volcano plot:Differential Expression Results',`
-    `                               subtitle = '',`
-    `                               FCcutoff = 0.1,`
-    `                               pCutoff = 0.05,`
-    `                               xlim = c(-5, 5))`
+> > ~~~
+> > EnhancedVolcano(DE_5xFAD.list$`5XFAD_carrier-female-6 mo,
+                                  lab = (DE_5xFAD.list$`5XFAD_carrier-female-6 mo`$symbol),
+                                  x = 'log2FoldChange',
+                                  y = 'padj',legendPosition = 'none',
+                                  title = 'Volcano plot:Differential Expression Results',
+                                  subtitle = '',
+                                  FCcutoff = 0.1,
+                                  pCutoff = 0.05,
+                                  xlim = c(-5, 5))
+> > ~~~
+> > {: .language-r}                                   
 > {: .solution}
 {: .challenge}
 
@@ -1536,8 +1614,10 @@ table(covar$Genotype)
 > How many samples are in each genotype for each sex and age group? 
 >
 > > ## Solution to Challenge 4
-> > `covar %>% group_by(Sex,Genotype,Age) %>% count()`
-> > ``
+> > ~~~
+> > covar %>% group_by(Sex,Genotype,Age) %>% count()
+> > ~~~
+> > {: .language-r} 
 > {: .solution}
 {: .challenge}
 
@@ -1889,7 +1969,7 @@ for (i in 1:nrow(comparisons)){
   names(DE_LOAD1.list)[i] <- paste0(comparisons[i,2])
 }
 
-save(DE_LOAD1.df,DE_LOAD1.list,file="../result/DEAnalysis_LOAD1.Rdata")
+save(DE_LOAD1.df,DE_LOAD1.list,file="../results/DEAnalysis_LOAD1.Rdata")
 ~~~
 {: .language-r}
 
@@ -1928,13 +2008,14 @@ knitr::kable(deg)
 |APOE4Trem2-female-12 |               1|                 4|
 
 > ## Challenge 5
-  > ## Challenge 5
-  > Save the data for next lesson?
-  >
-  > > ## Solution to Challenge 5
-  > > `save(DE_LOAD1.df,DE_LOAD1.list,file="../result/DEAnalysis_LOAD1.Rdata")`
-> > ``
-  > {: .solution}
+> Save the data for next lesson?
+>
+> > ## Solution to Challenge 5
+> > ~~~
+> > save(DE_LOAD1.df,DE_LOAD1.list,file="../result/DEAnalysis_LOAD1.Rdata")
+> > ~~~
+> > {: .language-r} 
+> {: .solution}
 {: .challenge}
 
 
