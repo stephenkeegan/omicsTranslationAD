@@ -239,10 +239,9 @@ cowplot::plot_grid(
 ~~~
 {: .language-r}
 
-<div class="figure" style="text-align: center">
-<img src="../fig/rmd-05-significant_terms-1.png" alt="plot of chunk significant_terms" width="720" />
-<p class="caption">plot of chunk significant_terms</p>
-</div>
+
+
+![significantTerms](../results/significantTerms.png) 
 
 From this we can see that nervous system related terms (e.g. "learning or memory", "neurotransmitter transport") are down in 5xFAD males at 12 months, while immune functions (e.g. "cytokine-mediated signaling pathway" and "leukocyte mediated immunity") are up in 5xFAD males at 12 months.  
 
@@ -284,7 +283,7 @@ enr@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()
 
 
 ~~~
-[1] 279
+[1] 324
 ~~~
 {: .output}
 
@@ -312,14 +311,13 @@ ridgeplot(enr, core_enrichment = T, showCategory = 20)
 
 
 ~~~
-Picking joint bandwidth of 0.223
+Picking joint bandwidth of 0.224
 ~~~
 {: .output}
 
-<div class="figure" style="text-align: center">
-<img src="../fig/rmd-05-term_enrichments-1.png" alt="plot of chunk term_enrichments" width="612" />
-<p class="caption">plot of chunk term_enrichments</p>
-</div>
+
+
+![ridgeplot](../results/ridgePlot.png)
 
 This plot shows the top 20 GSEA enriched terms. The displayed terms are all from the up-regulated class (i.e. `NES` > 0), and consist of many immune-relevant terms (e.g. "immune response" and "cytokine production"). 
 
@@ -544,22 +542,22 @@ arrange(bd.tally, desc(n_sig_term))
 # Rowwise: 
    domain                        n_term n_sig_term
    <chr>                          <int>      <int>
- 1 none                               0        134
- 2 Immune Response                  979        117
- 3 Structural Stabilization         498          8
- 4 Apoptosis                        218          4
- 5 Synapse                         1379          4
- 6 Proteostasis                     758          4
+ 1 none                               0        149
+ 2 Immune Response                  979        129
+ 3 Synapse                         1379         10
+ 4 Structural Stabilization         498          9
+ 5 Proteostasis                     758          9
+ 6 Apoptosis                        218          7
  7 Autophagy                        112          3
  8 Lipid Metabolism                 875          3
- 9 Vasculature                      374          1
-10 Mitochondrial Metabolism         532          1
-11 Endolysosome                     236          0
-12 Epigenetic                       432          0
-13 Oxidative Stress                  98          0
-14 APP Metabolism                    37          0
-15 Tau Homeostasis                   10          0
-16 Myelination                       66          0
+ 9 Endolysosome                     236          2
+10 Vasculature                      374          2
+11 Myelination                       66          1
+12 Mitochondrial Metabolism         532          1
+13 Epigenetic                       432          0
+14 Oxidative Stress                  98          0
+15 APP Metabolism                    37          0
+16 Tau Homeostasis                   10          0
 17 RNA Spliceosome                   51          0
 18 Cell Cycle                       320          0
 19 Metal Binding and Homeostasis    301          0
@@ -567,7 +565,7 @@ arrange(bd.tally, desc(n_sig_term))
 ~~~
 {: .output}
 
-Many enriched terms don't map to a domain (134), but most do (145). Of those that do, the vast majority map into the `Immune Response` biodomain.  
+Many enriched terms don't map to a domain (134), but most do (176). Of those that do, the vast majority map into the `Immune Response` biodomain.  
 
 We can plot the enrichment results, stratified by biodomain:  
 
@@ -597,13 +595,15 @@ Warning: Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
+Groups with fewer than two data points have been dropped.
+Groups with fewer than two data points have been dropped.
 ~~~
 {: .warning}
 
 
 
 ~~~
-Warning: Removed 10 rows containing missing values (`geom_point()`).
+Warning: Removed 8 rows containing missing values (`geom_point()`).
 ~~~
 {: .warning}
 
@@ -677,6 +677,7 @@ Because there are many more significantly enriched terms from the ORA, there is 
 > > ~~~
 > > {: .language-r}
 > > 908 unique to ORA
+> >
 > > 2). 
 > > ~~~
 > > enr.bd %>% filter( Description %in% setdiff(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) ) %>% group_by(Biodomain) %>% summarise(terms = paste0(Description, collapse = ', '))

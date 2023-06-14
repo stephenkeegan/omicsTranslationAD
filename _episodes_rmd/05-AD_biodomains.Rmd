@@ -172,12 +172,22 @@ enr.dn@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length(
 
 Plot the top 10 significant terms:  
 
-```{r significant_terms, fig.width=10}
+```{r significant_terms, fig.width=10, fig.show='hide'}
 cowplot::plot_grid(
   dotplot(enr.dn, showCategory = 10) + ggtitle('down'),
   dotplot(enr.up, showCategory = 10) + ggtitle('up')
 )
 ```
+
+```{r, echo=FALSE, warning=FALSE, include=FALSE}
+png(file="../results/significantTerms.png", width=12, height=6, units="in", res = 1200)
+cowplot::plot_grid(
+  dotplot(enr.dn, showCategory = 10) + ggtitle('down'),
+  dotplot(enr.up, showCategory = 10) + ggtitle('up'))
+dev.off()
+```
+
+![significantTerms](../results/significantTerms.png) 
 
 From this we can see that nervous system related terms (e.g. "learning or memory", "neurotransmitter transport") are down in 5xFAD males at 12 months, while immune functions (e.g. "cytokine-mediated signaling pathway" and "leukocyte mediated immunity") are up in 5xFAD males at 12 months.  
 
@@ -225,9 +235,17 @@ enr@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()
 
 Plot the term enrichments
 
-```{r term_enrichments}
+```{r term_enrichments, fig.show='hide'}
 ridgeplot(enr, core_enrichment = T, showCategory = 20)
 ```
+
+```{r, echo=FALSE, warning=FALSE, include=FALSE}
+png(file="../results/ridgePlot.png", width=12, height=8, units="in", res = 1200)
+ridgeplot(enr, core_enrichment = T, showCategory = 20)
+dev.off()
+```
+
+![ridgeplot](../results/ridgePlot.png)
 
 This plot shows the top 20 GSEA enriched terms. The displayed terms are all from the up-regulated class (i.e. `NES` > 0), and consist of many immune-relevant terms (e.g. "immune response" and "cytokine production"). 
 
@@ -405,6 +423,7 @@ Because there are many more significantly enriched terms from the ORA, there is 
 > > ~~~
 > > {: .language-r}
 > > 908 unique to ORA
+> >
 > > 2). 
 > > ~~~
 > > enr.bd %>% filter( Description %in% setdiff(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) ) %>% group_by(Biodomain) %>% summarise(terms = paste0(Description, collapse = ', '))
