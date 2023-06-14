@@ -364,14 +364,14 @@ counts %>%
 ```
 
 > ## Challenge 1
-> Download the raw read counts and themetadata from the Jax.IU.Pitt_APOE4.TREM2.R47H study (syn22107627).  
+> Download the raw read counts and themetadata from the Jax.IU.Pitt_APOE4.TREM2.R47H study (syn22107627, syn23613784).  
 >
 > > ## Solution to Challenge 1
 > > ~~~
 > > counts_id <- "syn22107627"
 > > synGet(counts_id, downloadLocation = "../data/")
 > > metadata_id <- 'syn23613784'
-> > synGet(metadata_id, downloadLocation = "data/")
+> > synGet(metadata_id, downloadLocation = "../data/")
 > > ~~~
 > > {: .language-r}
 > {: .solution}
