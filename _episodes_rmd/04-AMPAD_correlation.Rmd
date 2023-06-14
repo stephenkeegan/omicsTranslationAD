@@ -405,7 +405,7 @@ head(correlation_for_plot)
 
 ### Visualizing the Correlation plot
 Now, we will use above matrix and visualize the correlation results using ggplot2 package.
-```{r AMPAD1, fig.asp = 1, fig.width=15}
+```{r AMPAD1, fig.asp = 0.2, fig.width=20}
 
 data <- correlation_for_plot
 range(correlation_for_plot$correlation)
@@ -531,7 +531,7 @@ unique(DE_LOAD1.df$age)
 #### Perform the correlation analysis
 
 We directly input logFC table `DE_LOAD1.df` to `corr_function`:
-```{r AMPAD2, message=FALSE, warning=FALSE, fig.asp = 0.6, fig.width=15}
+```{r AMPAD2, message=FALSE, warning=FALSE}
 order.model <- c("APOE4 (Male)", "APOE4 (Female)","Trem2 (Male)", "Trem2 (Female)","APOE4Trem2 (Male)", "APOE4Trem2 (Female)")
 
 correlation_for_plot <- corr_function(DE_LOAD1.df)
@@ -542,7 +542,7 @@ head(correlation_for_plot)
 ```
 
 #### Visualize the correlation plot
-```{r AMPAD_module_corPlot}
+```{r AMPAD_module_corPlot, fig.asp = 0.6, fig.width=20}
 #range of correlation
 range(correlation_for_plot$correlation)
 
