@@ -14,6 +14,9 @@ objectives:
 - "Perform differential analysis using DESeq2."
 - "Pathway enrichment of differentially expressed genes"
 - "Save data for next lessons"
+keypoints:
+- "Validate metadata prior to data analysis."
+- "Use function for repeated differential expression analysis in multiple comparisons."
 ---
 
 
@@ -761,7 +764,7 @@ sum(res$padj < 0.05, na.rm=TRUE)
 > > ~~~
 > > sum(res$padj < 0.1, na.rm=TRUE) 
 > > ~~~
-> > {: .language-r
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 
@@ -1121,7 +1124,7 @@ comparisons
 Finally, we implement our DEG function on each comparison and store the result table in a list and data frame:
 
 ~~~
-# initiate a empty list and data frame to save results
+# initiate an empty list and data frame to save results
 DE_5xFAD.list <- list()
 DE_5xFAD.df <- data.frame()
 
