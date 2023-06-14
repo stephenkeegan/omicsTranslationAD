@@ -150,7 +150,7 @@ query$filepath
 
 
 ~~~
-[1] "/Users/auyar/.synapseCache/567/125731567/SYNAPSE_TABLE_QUERY_125731567.csv"
+[1] "/Users/auyar/.synapseCache/587/125731587/SYNAPSE_TABLE_QUERY_125731587.csv"
 ~~~
 {: .output}
 
@@ -847,7 +847,7 @@ Call `lifecycle::last_lifecycle_warnings()` to see where this warning was genera
 {: .output}
 
 > ## Challenge 1
-> Download the raw read counts and themetadata from the Jax.IU.Pitt_APOE4.TREM2.R47H study (syn22107627, syn23613784).  
+> Download the raw read counts and the metadata from the Jax.IU.Pitt_APOE4.TREM2.R47H study (syn22107627, syn23613784).  
 >
 > > ## Solution to Challenge 1
 > > ~~~
