@@ -661,24 +661,9 @@ Let's start!
 We first read the result table saved after differential analysis in last lesson. We start with 5XFAD mouse model to understand all required steps to perform correlation with human AD modules.
 
 ~~~
-load("../result/DEAnalysis_5XFAD.Rdata")
+load("../results/DEAnalysis_5XFAD.Rdata")
 ~~~
 {: .language-r}
-
-
-
-~~~
-Warning in readChar(con, 5L, useBytes = TRUE): cannot open compressed file
-'../result/DEAnalysis_5XFAD.Rdata', probable reason 'No such file or directory'
-~~~
-{: .warning}
-
-
-
-~~~
-Error in readChar(con, 5L, useBytes = TRUE): cannot open the connection
-~~~
-{: .error}
 
 We can also load AMP-AD module data.
 
@@ -702,13 +687,6 @@ model_vs_ampad <- DE_5xFAD.df %>%
 {: .language-r}
 
 
-
-~~~
-Error in eval(expr, envir, enclos): object 'DE_5xFAD.df' not found
-~~~
-{: .error}
-
-
 ~~~
 head(model_vs_ampad)
 ~~~
@@ -717,9 +695,22 @@ head(model_vs_ampad)
 
 
 ~~~
-Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': object 'model_vs_ampad' not found
+  symbol EntrezGene  baseMean log2FoldChange     lfcSE       stat    pvalue
+1  Gnai3      14679 3707.5316    -0.02308587 0.0381646 -0.6049026 0.5452437
+2  Gnai3      14679 3707.5316    -0.02308587 0.0381646 -0.6049026 0.5452437
+3  Gnai3      14679 3707.5316    -0.02308587 0.0381646 -0.6049026 0.5452437
+4  Gnai3      14679 3707.5316    -0.02308587 0.0381646 -0.6049026 0.5452437
+5  Scml2     107815  126.8241     0.08939456 0.1377406  0.6490066 0.5163341
+6  Scml2     107815  126.8241     0.08939456 0.1377406  0.6490066 0.5163341
+       padj model  sex  age       module    ampad_fc
+1 0.9999518 5xFAD male 4 mo      TCXblue  0.18017910
+2 0.9999518 5xFAD male 4 mo IFGturquoise -0.01064322
+3 0.9999518 5xFAD male 4 mo      STGblue -0.01063594
+4 0.9999518 5xFAD male 4 mo  FPturquoise -0.03142185
+5 0.9999518 5xFAD male 4 mo STGturquoise  0.07891395
+6 0.9999518 5xFAD male 4 mo      PHGblue  0.09451007
 ~~~
-{: .error}
+{: .output}
 
 Next, we create a list-columns of data frame using [nest](https://tidyr.tidyverse.org/reference/nest.html) function of tidyverse package. Nesting is implicitly a summarising operation: you get one row for each group defined by the non-nested columns. 
 
@@ -734,13 +725,6 @@ df <- model_vs_ampad %>%
 
 
 ~~~
-Error in eval(expr, envir, enclos): object 'model_vs_ampad' not found
-~~~
-{: .error}
-
-
-
-~~~
 head(df)
 ~~~
 {: .language-r}
@@ -748,13 +732,16 @@ head(df)
 
 
 ~~~
-                                              
-1 function (x, df1, df2, ncp, log = FALSE)    
-2 {                                           
-3     if (missing(ncp))                       
-4         .Call(C_df, x, df1, df2, log)       
-5     else .Call(C_dnf, x, df1, df2, ncp, log)
-6 }                                           
+# A tibble: 6 × 5
+# Groups:   module, model, sex, age [6]
+  module       model sex   age   data                
+  <chr>        <chr> <chr> <chr> <list>              
+1 TCXblue      5xFAD male  4 mo  <tibble [1,462 × 3]>
+2 IFGturquoise 5xFAD male  4 mo  <tibble [1,310 × 3]>
+3 STGblue      5xFAD male  4 mo  <tibble [1,092 × 3]>
+4 FPturquoise  5xFAD male  4 mo  <tibble [927 × 3]>  
+5 STGturquoise 5xFAD male  4 mo  <tibble [1,748 × 3]>
+6 PHGblue      5xFAD male  4 mo  <tibble [2,841 × 3]>
 ~~~
 {: .output}
 
@@ -768,7 +755,7 @@ dim(df)
 
 
 ~~~
-NULL
+[1] 180   5
 ~~~
 {: .output}
 
@@ -782,9 +769,23 @@ head(df[1,]$data)
 
 
 ~~~
-Error in (function (cond) : error in evaluating the argument 'x' in selecting a method for function 'head': object of type 'closure' is not subsettable
+[[1]]
+# A tibble: 1,462 × 3
+   symbol  log2FoldChange ampad_fc
+   <chr>            <dbl>    <dbl>
+ 1 Gnai3         -0.0231    0.180 
+ 2 Gna12         -0.00445   0.444 
+ 3 Sdhd          -0.00152   0.0631
+ 4 Lhx2          -0.0959    0.252 
+ 5 Gmpr           0.0105    0.801 
+ 6 Tpd52l1       -0.103     0.714 
+ 7 Cdh4          -0.0111    0.109 
+ 8 Dbt           -0.0460   -0.0103
+ 9 Tbrg4          0.00746  -0.129 
+10 Galnt1        -0.0105    0.191 
+# ℹ 1,452 more rows
 ~~~
-{: .error}
+{: .output}
 
 Next, we compute correlation coefficients using cor.test function built in R as following:
 
@@ -797,19 +798,7 @@ cor.df <- df  %>%
               ) %>%
           ungroup() %>%
           dplyr::select(-cor_test)
-~~~
-{: .language-r}
 
-
-
-~~~
-Error in UseMethod("mutate"): no applicable method for 'mutate' applied to an object of class "function"
-~~~
-{: .error}
-
-
-
-~~~
 head(cor.df)
 ~~~
 {: .language-r}
@@ -817,9 +806,17 @@ head(cor.df)
 
 
 ~~~
-Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': object 'cor.df' not found
+# A tibble: 6 × 7
+  module       model sex   age   data                 estimate  p_value
+  <chr>        <chr> <chr> <chr> <list>                  <dbl>    <dbl>
+1 TCXblue      5xFAD male  4 mo  <tibble [1,462 × 3]>  0.0681  9.19e- 3
+2 IFGturquoise 5xFAD male  4 mo  <tibble [1,310 × 3]>  0.227   9.10e-17
+3 STGblue      5xFAD male  4 mo  <tibble [1,092 × 3]>  0.284   9.55e-22
+4 FPturquoise  5xFAD male  4 mo  <tibble [927 × 3]>    0.103   1.72e- 3
+5 STGturquoise 5xFAD male  4 mo  <tibble [1,748 × 3]> -0.0538  2.44e- 2
+6 PHGblue      5xFAD male  4 mo  <tibble [2,841 × 3]> -0.00934 6.19e- 1
 ~~~
-{: .error}
+{: .output}
 
 #### Step2: add signifcant correlations and join module cluster information to correlation table
 
@@ -832,13 +829,6 @@ model_module <- cor.df %>%
 {: .language-r}
 
 
-
-~~~
-Error in eval(expr, envir, enclos): object 'cor.df' not found
-~~~
-{: .error}
-
-
 ~~~
 head(model_module)
 ~~~
@@ -847,9 +837,18 @@ head(model_module)
 
 
 ~~~
-Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': object 'model_module' not found
+# A tibble: 6 × 9
+  cluster            cluster_label module model sex   age   correlation  p_value
+  <chr>              <fct>         <chr>  <chr> <chr> <chr>       <dbl>    <dbl>
+1 Consensus Cluster… "Consensus C… TCXbl… 5xFAD male  4 mo      0.0681  9.19e- 3
+2 Consensus Cluster… "Consensus C… IFGtu… 5xFAD male  4 mo      0.227   9.10e-17
+3 Consensus Cluster… "Consensus C… STGbl… 5xFAD male  4 mo      0.284   9.55e-22
+4 Consensus Cluster… "Consensus C… FPtur… 5xFAD male  4 mo      0.103   1.72e- 3
+5 Consensus Cluster… "Consensus C… STGtu… 5xFAD male  4 mo     -0.0538  2.44e- 2
+6 Consensus Cluster… "Consensus C… PHGbl… 5xFAD male  4 mo     -0.00934 6.19e- 1
+# ℹ 1 more variable: significant <lgl>
 ~~~
-{: .error}
+{: .output}
 
 #### Step3: Create a dataframe to use as input for plotting the results
 
@@ -867,19 +866,7 @@ correlation_for_plot <- model_module %>%
       model_sex = factor(model_sex,levels=order.model),
       model_sex = fct_rev(model_sex),
     )
-~~~
-{: .language-r}
 
-
-
-~~~
-Error in eval(expr, envir, enclos): object 'model_module' not found
-~~~
-{: .error}
-
-
-
-~~~
 head(correlation_for_plot)
 ~~~
 {: .language-r}
@@ -887,9 +874,18 @@ head(correlation_for_plot)
 
 
 ~~~
-Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': object 'correlation_for_plot' not found
+# A tibble: 6 × 10
+  cluster cluster_label module model sex   age   correlation p_value significant
+  <chr>   <fct>         <fct>  <chr> <chr> <chr>       <dbl>   <dbl> <lgl>      
+1 Consen… "Consensus C… TCXbl… 5xFAD fema… 4 mo       0.114  1.31e-5 TRUE       
+2 Consen… "Consensus C… PHGye… 5xFAD fema… 4 mo       0.201  9.14e-9 TRUE       
+3 Consen… "Consensus C… IFGye… 5xFAD fema… 4 mo       0.0757 5.12e-2 FALSE      
+4 Consen… "Consensus C… TCXbl… 5xFAD fema… 6 mo       0.115  9.69e-6 TRUE       
+5 Consen… "Consensus C… PHGye… 5xFAD fema… 6 mo       0.0668 5.87e-2 FALSE      
+6 Consen… "Consensus C… IFGye… 5xFAD fema… 6 mo       0.0707 6.86e-2 FALSE      
+# ℹ 1 more variable: model_sex <fct>
 ~~~
-{: .error}
+{: .output}
 
 
 ### Visualizing the Correlation plot
@@ -897,19 +893,6 @@ Now, we will use above matrix and visualize the correlation results using ggplot
 
 ~~~
 data <- correlation_for_plot
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in eval(expr, envir, enclos): object 'correlation_for_plot' not found
-~~~
-{: .error}
-
-
-
-~~~
 range(correlation_for_plot$correlation)
 ~~~
 {: .language-r}
@@ -917,9 +900,9 @@ range(correlation_for_plot$correlation)
 
 
 ~~~
-Error in eval(expr, envir, enclos): object 'correlation_for_plot' not found
+[1] -0.1749441  0.3684976
 ~~~
-{: .error}
+{: .output}
 
 
 
@@ -948,12 +931,10 @@ ggplot2::ggplot() +
 ~~~
 {: .language-r}
 
-
-
-~~~
-Error in UseMethod("filter"): no applicable method for 'filter' applied to an object of class "function"
-~~~
-{: .error}
+<div class="figure" style="text-align: center">
+<img src="../fig/rmd-04-AMPAD1-1.png" alt="plot of chunk AMPAD1" width="612" />
+<p class="caption">plot of chunk AMPAD1</p>
+</div>
 In above plot, top row represent 30 AMP-AD modules grouped into 5 consensus clusters describing the major functional groups of AD-related alterations and left column represent mouse models. Positive correlations are shown in blue and negative correlations in red. Color intensity and size of the circles are proportional to the correlation coefficient.  Black square around dots represent significant correlation at p-value=0.05 and non-significant correlations are left blank. 
 
 Male and female 5XFAD mice display gene expression alterations across all five consensus clusters, with the most pronounced alterations observed in Consensus Cluster B, which consists of immune system pathways. 

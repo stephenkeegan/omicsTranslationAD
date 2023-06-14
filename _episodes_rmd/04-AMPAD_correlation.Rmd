@@ -310,7 +310,7 @@ Let's start!
 
 We first read the result table saved after differential analysis in last lesson. We start with 5XFAD mouse model to understand all required steps to perform correlation with human AD modules.
 ```{r FAD}
-load("../result/DEAnalysis_5XFAD.Rdata")
+load("../results/DEAnalysis_5XFAD.Rdata")
 ```
 
 We can also load AMP-AD module data.
@@ -405,7 +405,7 @@ head(correlation_for_plot)
 
 ### Visualizing the Correlation plot
 Now, we will use above matrix and visualize the correlation results using ggplot2 package.
-```{r AMPAD1, fig.height=4, fig.width=10}
+```{r AMPAD1, dpi=72}
 
 data <- correlation_for_plot
 range(correlation_for_plot$correlation)
@@ -531,7 +531,7 @@ unique(DE_LOAD1.df$age)
 #### Perform the correlation analysis
 
 We directly input logFC table `DE_LOAD1.df` to `corr_function`:
-```{r AMPAD2, message=FALSE, warning=FALSE,fig.width = 8, fig.height = 5}
+```{r AMPAD2, message=FALSE, warning=FALSE, dpi=200}
 order.model <- c("APOE4 (Male)", "APOE4 (Female)","Trem2 (Male)", "Trem2 (Female)","APOE4Trem2 (Male)", "APOE4Trem2 (Female)")
 
 correlation_for_plot <- corr_function(DE_LOAD1.df)
