@@ -434,8 +434,34 @@ ggplot2::ggplot() +
 
 ```
 
+```{r, echo=FALSE, warning=FALSE, include=FALSE}
+png(file="../results/AMPAD1.png", width=15, height=6, units="in", res = 1200)
+ggplot2::ggplot() +
+    ggplot2::geom_tile(data = data, ggplot2::aes(x = .data$module, y = .data$model_sex), colour = "black", fill = "white") +
+    ggplot2::geom_point(data = dplyr::filter(data), ggplot2::aes(x = .data$module, y = .data$model_sex, colour = .data$correlation, size = abs(.data$correlation))) +
+    ggplot2::geom_point(data = dplyr::filter(data, .data$significant), ggplot2::aes(x = .data$module, y = .data$model_sex, colour = .data$correlation),color="black",shape=0,size=9) +
+    ggplot2::scale_x_discrete(position = "top") +
+    ggplot2::scale_size(guide = "none", limits = c(0, 0.4)) +
+    ggplot2::scale_color_gradient2(limits = c(-0.4, 0.4), breaks = c(-0.4, 0, 0.4), low = "#85070C", high = "#164B6E", name = "Correlation", guide = ggplot2::guide_colorbar(ticks = FALSE)) +
+    ggplot2::labs(x = NULL, y = NULL) +
+    ggplot2::facet_grid( rows = dplyr::vars(.data$age),cols = dplyr::vars(.data$cluster_label), scales = "free", space = "free",switch = 'y') +
+    ggplot2::theme(
+      strip.text.x = ggplot2::element_text(size = 10,colour = c("black")),
+      strip.text.y.left = ggplot2::element_text(angle = 0,size = 12),
+      axis.ticks = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_text(angle = 90, hjust = 0, size = 12),
+      axis.text.y = ggplot2::element_text(angle = 0, size = 12),
+      panel.background = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(angle = 0, vjust = -54, hjust = 0.03,size=12,face="bold"),
+      plot.title.position = "plot",
+      panel.grid = ggplot2::element_blank(),
+      legend.position = "right"
+    )
+dev.off()
+```
 
 
+![AMPAD - 5XFAD correlation plot](../results/AMPAD1.png)
 
 In above plot, top row represent 30 AMP-AD modules grouped into 5 consensus clusters describing the major functional groups of AD-related alterations and left column represent mouse models. Positive correlations are shown in blue and negative correlations in red. Color intensity and size of the circles are proportional to the correlation coefficient.  Black square around dots represent significant correlation at p-value=0.05 and non-significant correlations are left blank. 
 
@@ -546,13 +572,20 @@ head(correlation_for_plot)
 ```
 
 #### Visualize the correlation plot
-```{r AMPAD_module_corPlot, fig.asp = 0.6, fig.width=20}
+```{r}
 #range of correlation
 range(correlation_for_plot$correlation)
-
+```
+```{r AMPAD_module_corPlot, fig.asp = 0.5, fig.width=16, fig.show='hide'}
 magora_corrplot(correlation_for_plot,0.25)
-
 ```
 
+```{r, echo=FALSE, warning=FALSE, include=FALSE}
+png(file="../results/AMPAD_LOAD1.png", width=15, height=8, units="in", res = 1200)
+magora_corrplot(correlation_for_plot,0.25)
+dev.off()
+```
+
+![AMPAD - LOAD1 correlation plot](../results/AMPAD_LOAD1.png)
 
 What do you conclude from this plot?

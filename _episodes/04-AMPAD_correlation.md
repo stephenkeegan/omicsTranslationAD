@@ -934,6 +934,8 @@ ggplot2::ggplot() +
 
 
 
+![AMPAD - 5XFAD correlation plot](../results/AMPAD1.png)
+
 In above plot, top row represent 30 AMP-AD modules grouped into 5 consensus clusters describing the major functional groups of AD-related alterations and left column represent mouse models. Positive correlations are shown in blue and negative correlations in red. Color intensity and size of the circles are proportional to the correlation coefficient.  Black square around dots represent significant correlation at p-value=0.05 and non-significant correlations are left blank. 
 
 Male and female 5XFAD mice display gene expression alterations across all five consensus clusters, with the most pronounced alterations observed in Consensus Cluster B, which consists of immune system pathways. 
@@ -1140,17 +1142,13 @@ range(correlation_for_plot$correlation)
 ~~~
 {: .output}
 
-
-
 ~~~
 magora_corrplot(correlation_for_plot,0.25)
 ~~~
 {: .language-r}
 
-<div class="figure" style="text-align: center">
-<img src="../fig/rmd-04-AMPAD_module_corPlot-1.png" alt="plot of chunk AMPAD_module_corPlot" width="1440" />
-<p class="caption">plot of chunk AMPAD_module_corPlot</p>
-</div>
 
+
+![AMPAD - LOAD1 correlation plot](../results/AMPAD_LOAD1.png)
 
 What do you conclude from this plot?
