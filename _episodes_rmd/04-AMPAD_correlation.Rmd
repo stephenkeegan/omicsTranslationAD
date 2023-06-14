@@ -405,7 +405,7 @@ head(correlation_for_plot)
 
 ### Visualizing the Correlation plot
 Now, we will use above matrix and visualize the correlation results using ggplot2 package.
-```{r AMPAD1, fig.asp = 0.2, fig.width=20}
+```{r AMPAD1, fig.asp = 0.1, fig.width=10}
 
 data <- correlation_for_plot
 range(correlation_for_plot$correlation)
