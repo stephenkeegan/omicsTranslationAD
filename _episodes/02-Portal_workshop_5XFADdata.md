@@ -150,7 +150,7 @@ query$filepath
 
 
 ~~~
-[1] "/Users/auyar/.synapseCache/587/125731587/SYNAPSE_TABLE_QUERY_125731587.csv"
+[1] "/Users/auyar/.synapseCache/628/125732628/SYNAPSE_TABLE_QUERY_125732628.csv"
 ~~~
 {: .output}
 
@@ -500,11 +500,27 @@ joined_meta
 
 We now have a very wide dataframe that contains all the available metadata on each specimen in the RNAseq data from this study. This procedure can be used to join the three types of metadata files for every study in the AD Knowledge Portal, allowing you to filter individuals and specimens as needed based on your analysis criteria!
 
+
+
+~~~
+# convert columns of strings to month-date-year format
+joined_meta_time <- joined_meta %>%
+  # convert numeric ages to timepoint categories
+  mutate(timepoint = case_when(ageDeath > 10 ~ "12 mo",
+                               ageDeath < 10 & ageDeath > 5 ~ "6 mo",
+                               ageDeath < 5 ~ "4 mo"))
+covars_5XFAD <- joined_meta_time %>%
+  dplyr::select(individualID, specimenID, sex, genotype, timepoint) %>% distinct() %>% as.data.frame()
+rownames(covars_5XFAD) <- covars_5XFAD$specimenID
+~~~
+{: .language-r}
+
+
 We will save joined_meta for the next lesson.
 
 
 ~~~
-saveRDS(joined_meta, file = "../data/covars_5XFAD.rds")
+saveRDS(covars_5XFAD, file = "../data/covars_5XFAD.rds")
 ~~~
 {: .language-r}
 
