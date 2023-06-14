@@ -932,7 +932,7 @@ ggplot2::ggplot() +
 {: .language-r}
 
 <div class="figure" style="text-align: center">
-<img src="../fig/rmd-04-AMPAD1-1.png" alt="plot of chunk AMPAD1" width="612" />
+<img src="../fig/rmd-04-AMPAD1-1.png" alt="plot of chunk AMPAD1" width="720" />
 <p class="caption">plot of chunk AMPAD1</p>
 </div>
 In above plot, top row represent 30 AMP-AD modules grouped into 5 consensus clusters describing the major functional groups of AD-related alterations and left column represent mouse models. Positive correlations are shown in blue and negative correlations in red. Color intensity and size of the circles are proportional to the correlation coefficient.  Black square around dots represent significant correlation at p-value=0.05 and non-significant correlations are left blank. 
