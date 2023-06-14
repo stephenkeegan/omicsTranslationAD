@@ -283,7 +283,7 @@ enr@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()
 
 
 ~~~
-[1] 324
+[1] 295
 ~~~
 {: .output}
 
@@ -492,8 +492,8 @@ head(enr.bd[,1:4])
         Biodomain ONTOLOGY         ID                          Description
 1 Immune Response       BP GO:0002376                immune system process
 2 Immune Response       BP GO:0006955                      immune response
-3            <NA>       BP GO:0002682  regulation of immune system process
-4            <NA>       BP GO:0006952                     defense response
+3            <NA>       BP GO:0006952                     defense response
+4            <NA>       BP GO:0002682  regulation of immune system process
 5            <NA>       BP GO:0009607          response to biotic stimulus
 6            <NA>       BP GO:0043207 response to external biotic stimulus
 ~~~
@@ -514,8 +514,8 @@ head(enr.bd[,1:4])
         Biodomain ONTOLOGY         ID                          Description
 1 Immune Response       BP GO:0002376                immune system process
 2 Immune Response       BP GO:0006955                      immune response
-3            none       BP GO:0002682  regulation of immune system process
-4            none       BP GO:0006952                     defense response
+3            none       BP GO:0006952                     defense response
+4            none       BP GO:0002682  regulation of immune system process
 5            none       BP GO:0009607          response to biotic stimulus
 6            none       BP GO:0043207 response to external biotic stimulus
 ~~~
@@ -542,18 +542,18 @@ arrange(bd.tally, desc(n_sig_term))
 # Rowwise: 
    domain                        n_term n_sig_term
    <chr>                          <int>      <int>
- 1 none                               0        149
- 2 Immune Response                  979        129
- 3 Synapse                         1379         10
- 4 Structural Stabilization         498          9
- 5 Proteostasis                     758          9
- 6 Apoptosis                        218          7
- 7 Autophagy                        112          3
+ 1 none                               0        141
+ 2 Immune Response                  979        122
+ 3 Structural Stabilization         498          8
+ 4 Apoptosis                        218          5
+ 5 Synapse                         1379          5
+ 6 Autophagy                        112          4
+ 7 Proteostasis                     758          4
  8 Lipid Metabolism                 875          3
- 9 Endolysosome                     236          2
-10 Vasculature                      374          2
-11 Myelination                       66          1
-12 Mitochondrial Metabolism         532          1
+ 9 Vasculature                      374          1
+10 Myelination                       66          1
+11 Mitochondrial Metabolism         532          1
+12 Endolysosome                     236          0
 13 Epigenetic                       432          0
 14 Oxidative Stress                  98          0
 15 APP Metabolism                    37          0
@@ -565,7 +565,7 @@ arrange(bd.tally, desc(n_sig_term))
 ~~~
 {: .output}
 
-Many enriched terms don't map to a domain (134), but most do (176). Of those that do, the vast majority map into the `Immune Response` biodomain.  
+Many enriched terms don't map to a domain (134), but most do (154). Of those that do, the vast majority map into the `Immune Response` biodomain.  
 
 We can plot the enrichment results, stratified by biodomain:  
 
@@ -596,14 +596,13 @@ Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
 ~~~
 {: .warning}
 
 
 
 ~~~
-Warning: Removed 8 rows containing missing values (`geom_point()`).
+Warning: Removed 9 rows containing missing values (`geom_point()`).
 ~~~
 {: .warning}
 
