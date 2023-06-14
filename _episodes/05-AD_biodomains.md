@@ -30,6 +30,7 @@ suppressPackageStartupMessages(library("org.Hs.eg.db"))
 suppressPackageStartupMessages(library("clusterProfiler"))
 suppressPackageStartupMessages(library("cowplot"))
 suppressPackageStartupMessages(library("synapser"))
+suppressPackageStartupMessages(library("ggridges"))
 ~~~
 {: .language-r}
 
@@ -71,13 +72,13 @@ Most omics analysis approaches produce data on many thousands of genomic feature
 
 Gene functional enrichment analysis describes a variety of statistical methods that identify groups of genes that share a particular biological function or process and show differential association with experimental conditions. Most approaches compare some statistically valid set of differentially expressed features to sets of functional annotations for those features. There are many different functional annotation sets available, some of the more commonly used include:  
 
- * gene function resources, such as the [`Gene Ontology`](amigo.geneontology.org/amigo){target='_blank'} (i.e. GO)    
- * pathway databases, such as [`Reactome`](reactiome.org){target='_blank'} or [`KEGG`](www.genome.jp/kegg/){target='_blank'}   
- * disease and phenotype ontologies, such as the [`Human Phenotype Ontology`](hpo.jax.org/app){target='_blank'}, the [`Mammailian Phenotype Ontology`](www.informatics.jax.org/vocab/mp_ontology){target='_blank'}, and the [`Disease Ontology`](https://disease-ontology.org/){target='_blank'}   
+ * gene function resources, such as the [Gene Ontology](amigo.geneontology.org/amigo) (i.e. GO)    
+ * pathway databases, such as [Reactome](reactiome.org) or [KEGG](www.genome.jp/kegg/)   
+ * disease and phenotype ontologies, such as the [Human Phenotype Ontology](hpo.jax.org/app), the [Mammalian Phenotype Ontology](www.informatics.jax.org/vocab/mp_ontology), and the [Disease Ontology](https://disease-ontology.org/)   
 
-These are the resources that are the foundation for many genomics knowledge bases, such as [`MGI`](www.informatics.jax.org){target='_blank'}, [`monarch initiative`](monarchinitiative.org){target='_blank'}, and  the [`Alliance of Genome Resources`](alliancegenome.org){taret='_blank'}. The the precise nature of each of these resources varies, but the core information contained within each is the relationship of sets of genes to biologically meaningful annotations. These annotations are typically expertly curated from the published literature.
+These are the resources that are the foundation for many genomics knowledge bases, such as [MGI](www.informatics.jax.org), [monarch initiative](monarchinitiative.org), and  the [Alliance of Genome Resources](alliancegenome.org). The the precise nature of each of these resources varies, but the core information contained within each is the relationship of sets of genes to biologically meaningful annotations. These annotations are typically expertly curated from the published literature.
 
-There are a variety of statistical approaches that can be employed to test for functional enrichment among genes identified from an omics dataset. Two of the most common broad classes of tests are *over-representation analysis (ORA)* and *gene set enrichment analysis (GSEA)*. For example, consider the figure below from [Zhao & Rhee, Trends in Genetics (2023)](https://doi.org/10.1016/j.tig.2023.01.003){target='_blank'}. Let's consider each in a bit more detail.  
+There are a variety of statistical approaches that can be employed to test for functional enrichment among genes identified from an omics dataset. Two of the most common broad classes of tests are *over-representation analysis (ORA)* and *gene set enrichment analysis (GSEA)*. For example, consider the figure below from [Zhao & Rhee, Trends in Genetics (2023)](https://doi.org/10.1016/j.tig.2023.01.003). Let's consider each in a bit more detail.  
 
 ![Functional enrichment approaches](../fig/Zhao_Rhee_TrendsGenetics_pathway_enrichment.jpg)
 
@@ -93,8 +94,8 @@ Let's start by considering the enrichments from the mouse data analyzed previous
 
 ~~~
 theme_set(theme_bw())
-# load('../results/DEAnalysis_5XFAD.RData')
-load('../data/DEAnalysis_5XFAD.RData')
+load('../results/DEAnalysis_5XFAD.RData')
+#load('../data/DEAnalysis_5XFAD.RData')
 ~~~
 {: .language-r}
 
@@ -128,7 +129,7 @@ length(gene.list.up)
 
 
 ~~~
-[1] 1055
+[1] 1054
 ~~~
 {: .output}
 
@@ -197,7 +198,7 @@ enr.up@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length(
 
 
 ~~~
-[1] 1583
+[1] 1597
 ~~~
 {: .output}
 
@@ -211,7 +212,7 @@ enr.dn@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length(
 
 
 ~~~
-[1] 529
+[1] 531
 ~~~
 {: .output}
 
@@ -220,8 +221,10 @@ enr.dn@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length(
 >
 > > ## Solution to Challenge 1
 > >
-> > 1). `enrichGO(gene.list.up, ont = 'all', OrgDb = org.Mm.eg.db, keyType = 'SYMBOL') %>%  .@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()`  
-> >     2340  
+> > ~~~
+> > enrichGO(gene.list.up, ont = 'all', OrgDb = org.Mm.eg.db, keyType = 'SYMBOL') %>% .@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()  
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 
@@ -237,7 +240,7 @@ cowplot::plot_grid(
 {: .language-r}
 
 <div class="figure" style="text-align: center">
-<img src="../fig/rmd-05-significant_terms-1.png" alt="plot of chunk significant_terms" width="612" />
+<img src="../fig/rmd-05-significant_terms-1.png" alt="plot of chunk significant_terms" width="720" />
 <p class="caption">plot of chunk significant_terms</p>
 </div>
 
@@ -281,7 +284,7 @@ enr@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()
 
 
 ~~~
-[1] 291
+[1] 279
 ~~~
 {: .output}
 
@@ -290,8 +293,11 @@ enr@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()
 >
 > > ## Solution to Challenge 2
 > >
-> > `enr@result %>% filter(p.adjust <= 0.05, NES < 0) %>% pull(ID) %>% unique() %>% length()`  
-> > `enr@result %>% filter(p.adjust <= 0.05, NES > 0) %>% pull(ID) %>% unique() %>% length()`
+> > ~~~
+> > enr@result %>% filter(p.adjust <= 0.05, NES < 0) %>% pull(ID) %>% unique() %>% length()  
+> > enr@result %>% filter(p.adjust <= 0.05, NES > 0) %>% pull(ID) %>% unique() %>% length()
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 
@@ -306,9 +312,14 @@ ridgeplot(enr, core_enrichment = T, showCategory = 20)
 
 
 ~~~
-Error in loadNamespace(x): there is no package called 'ggridges'
+Picking joint bandwidth of 0.223
 ~~~
-{: .error}
+{: .output}
+
+<div class="figure" style="text-align: center">
+<img src="../fig/rmd-05-term_enrichments-1.png" alt="plot of chunk term_enrichments" width="612" />
+<p class="caption">plot of chunk term_enrichments</p>
+</div>
 
 This plot shows the top 20 GSEA enriched terms. The displayed terms are all from the up-regulated class (i.e. `NES` > 0), and consist of many immune-relevant terms (e.g. "immune response" and "cytokine production"). 
 
@@ -337,7 +348,7 @@ In order to formalize and operationalize these endophenotypic areas, the [Emory-
  * *intelligible:* groupings should be easy to understand  
  * *modifiable:* definitions should be (and are!) continuously be updated. 
 
-In all 19 distinct biological domains (aka biodoms) have been identified. These biological domains are defined using sets of GO terms that align with the endophenotype. For example, terms like "cytokine receptor binding" and "leukocyte migration" are annotated to the `Immune Response` biodomain, while terms like "postsynaptic density" and "synaptic vesicle cycle" are annotated to the `Synapse` biodomain. Of all terms in the GO, 7,127 terms (16.4%) are annotated to one of the biological domains. Because the GO terms have genes annotated, genes can be associate with specific endophenotypes via the biological domain groupings of terms. In all, 18,289 genes annotated to at least 1 biodom term. While the biodomains exhibit very few overlapping GO terms (panel A), due to gene pleiotropy (etc) the number of overlapping genes between biological domains is quite a bit higher (panel B). The development of the biological domains is described in more detail in the medRxiv preprint [Genetic and Multi-omic Risk Assessment of Alzheimer’s Disease Implicates Core Associated Biological Domains](www.medrxiv.org/content/10.1101/2022.12.15.22283478v1.full){target='_blank'}.  
+In all 19 distinct biological domains (aka biodoms) have been identified. These biological domains are defined using sets of GO terms that align with the endophenotype. For example, terms like "cytokine receptor binding" and "leukocyte migration" are annotated to the `Immune Response` biodomain, while terms like "postsynaptic density" and "synaptic vesicle cycle" are annotated to the `Synapse` biodomain. Of all terms in the GO, 7,127 terms (16.4%) are annotated to one of the biological domains. Because the GO terms have genes annotated, genes can be associate with specific endophenotypes via the biological domain groupings of terms. In all, 18,289 genes annotated to at least 1 biodom term. While the biodomains exhibit very few overlapping GO terms (panel A), due to gene pleiotropy (etc) the number of overlapping genes between biological domains is quite a bit higher (panel B). The development of the biological domains is described in more detail in the medRxiv preprint [Genetic and Multi-omic Risk Assessment of Alzheimer’s Disease Implicates Core Associated Biological Domains](www.medrxiv.org/content/10.1101/2022.12.15.22283478v1.full). 
 
 ![AD Biodomain Demographics](../fig/score_domains_preprint_F1_cropped.jpeg)
 
@@ -483,8 +494,8 @@ head(enr.bd[,1:4])
         Biodomain ONTOLOGY         ID                          Description
 1 Immune Response       BP GO:0002376                immune system process
 2 Immune Response       BP GO:0006955                      immune response
-3            <NA>       BP GO:0006952                     defense response
-4            <NA>       BP GO:0002682  regulation of immune system process
+3            <NA>       BP GO:0002682  regulation of immune system process
+4            <NA>       BP GO:0006952                     defense response
 5            <NA>       BP GO:0009607          response to biotic stimulus
 6            <NA>       BP GO:0043207 response to external biotic stimulus
 ~~~
@@ -505,8 +516,8 @@ head(enr.bd[,1:4])
         Biodomain ONTOLOGY         ID                          Description
 1 Immune Response       BP GO:0002376                immune system process
 2 Immune Response       BP GO:0006955                      immune response
-3            none       BP GO:0006952                     defense response
-4            none       BP GO:0002682  regulation of immune system process
+3            none       BP GO:0002682  regulation of immune system process
+4            none       BP GO:0006952                     defense response
 5            none       BP GO:0009607          response to biotic stimulus
 6            none       BP GO:0043207 response to external biotic stimulus
 ~~~
@@ -533,22 +544,22 @@ arrange(bd.tally, desc(n_sig_term))
 # Rowwise: 
    domain                        n_term n_sig_term
    <chr>                          <int>      <int>
- 1 none                               0        136
- 2 Immune Response                  979        115
- 3 Structural Stabilization         498          9
- 4 Synapse                         1379          9
- 5 Proteostasis                     758          8
- 6 Apoptosis                        218          5
+ 1 none                               0        134
+ 2 Immune Response                  979        117
+ 3 Structural Stabilization         498          8
+ 4 Apoptosis                        218          4
+ 5 Synapse                         1379          4
+ 6 Proteostasis                     758          4
  7 Autophagy                        112          3
  8 Lipid Metabolism                 875          3
- 9 Vasculature                      374          2
-10 Myelination                       66          1
-11 Mitochondrial Metabolism         532          1
-12 Endolysosome                     236          0
-13 Epigenetic                       432          0
-14 Oxidative Stress                  98          0
-15 APP Metabolism                    37          0
-16 Tau Homeostasis                   10          0
+ 9 Vasculature                      374          1
+10 Mitochondrial Metabolism         532          1
+11 Endolysosome                     236          0
+12 Epigenetic                       432          0
+13 Oxidative Stress                  98          0
+14 APP Metabolism                    37          0
+15 Tau Homeostasis                   10          0
+16 Myelination                       66          0
 17 RNA Spliceosome                   51          0
 18 Cell Cycle                       320          0
 19 Metal Binding and Homeostasis    301          0
@@ -556,7 +567,7 @@ arrange(bd.tally, desc(n_sig_term))
 ~~~
 {: .output}
 
-Many enriched terms don't map to a domain (134), but most do (156). Of those that do, the vast majority map into the `Immune Response` biodomain.  
+Many enriched terms don't map to a domain (134), but most do (145). Of those that do, the vast majority map into the `Immune Response` biodomain.  
 
 We can plot the enrichment results, stratified by biodomain:  
 
@@ -586,14 +597,13 @@ Warning: Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
 ~~~
 {: .warning}
 
 
 
 ~~~
-Warning: Removed 9 rows containing missing values (`geom_point()`).
+Warning: Removed 10 rows containing missing values (`geom_point()`).
 ~~~
 {: .warning}
 
@@ -612,23 +622,7 @@ enr.ora = bind_rows(
   ) %>% 
   left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% 
   relocate(Biodomain)
-~~~
-{: .language-r}
 
-
-
-~~~
-Warning in left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = "ID"): Detected an unexpected many-to-many relationship between `x` and `y`.
-ℹ Row 379 of `x` matches multiple rows in `y`.
-ℹ Row 2595 of `y` matches multiple rows in `x`.
-ℹ If a many-to-many relationship is expected, set `relationship = "many-to-many"` to silence
-  this warning.
-~~~
-{: .warning}
-
-
-
-~~~
 enr.ora$Biodomain[is.na(enr.ora$Biodomain)] <- 'none'
 
 bd.tally = tibble(domain = c(unique(biodom$Biodomain), 'none')) %>% 
@@ -654,30 +648,6 @@ ggplot(enr.ora, aes(signed_logP, Biodomain)) +
 ~~~
 {: .language-r}
 
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Removed 1 rows containing missing values (`geom_point()`).
-~~~
-{: .warning}
-
 <div class="figure" style="text-align: center">
 <img src="../fig/rmd-05-ORA_results-1.png" alt="plot of chunk ORA_results" width="612" />
 <p class="caption">plot of chunk ORA_results</p>
@@ -691,14 +661,28 @@ Because there are many more significantly enriched terms from the ORA, there is 
 >
 > > ## Solution to Challenge 3
 > >
-> > 1). `intersect(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) %>% length()`  
-> >     133 in common
-> >     `setdiff(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) %>% length()`
-> >     20 unique to GSEA
-> >     `setdiff(enr.ora$Description[enr.ora$Biodomain!='none'], enr.bd$Description[enr.bd$Biodomain!='none']) %>% length()`
-> >     908 unique to ORA
-> > 2). `enr.bd %>% filter( Description %in% setdiff(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) ) %>% group_by(Biodomain) %>% summarise(terms = paste0(Description, collapse = ', '))`
-> >     Most terms unique to GSEA are from the `Immune Response` domain (13), but there are also terms from `Structural Stabilization` (4), `Apoptosis` (2), and `Synapse` (1) that are unique to the GSEA results. 
+> > 1). 
+> > ~~~
+> > intersect(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) %>% length()  
+> > ~~~
+> > {: .language-r}
+> > 133 in common
+> > ~~~
+> > setdiff(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) %>% length()
+> > ~~~
+> > {: .language-r}
+> > 20 unique to GSEA
+> > ~~~
+> > setdiff(enr.ora$Description[enr.ora$Biodomain!='none'], enr.bd$Description[enr.bd$Biodomain!='none']) %>% length()
+> > ~~~
+> > {: .language-r}
+> > 908 unique to ORA
+> > 2). 
+> > ~~~
+> > enr.bd %>% filter( Description %in% setdiff(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) ) %>% group_by(Biodomain) %>% summarise(terms = paste0(Description, collapse = ', '))
+> > ~~~
+> > {: .language-r}
+> > Most terms unique to GSEA are from the 'Immune Response' domain (13), but there are also terms from 'Structural Stabilization' (4), 'Apoptosis' (2), and 'Synapse' (1) that are unique to the GSEA results. 
 > {: .solution}
 {: .challenge}
 
@@ -734,23 +718,7 @@ enr.bd = mm.ora %>%
   mutate(Biodomain = if_else( is.na(Biodomain), 'none', Biodomain),
          signed_logP = -log10(p.adjust),
          signed_logP = if_else(dir == 'ora_dn', -1*signed_logP, signed_logP))
-~~~
-{: .language-r}
 
-
-
-~~~
-Warning in left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = "ID"): Detected an unexpected many-to-many relationship between `x` and `y`.
-ℹ Row 91 of `x` matches multiple rows in `y`.
-ℹ Row 493 of `y` matches multiple rows in `x`.
-ℹ If a many-to-many relationship is expected, set `relationship = "many-to-many"` to silence
-  this warning.
-~~~
-{: .warning}
-
-
-
-~~~
 bd.tally = tibble(domain = c(unique(biodom$Biodomain), 'none')) %>% 
   rowwise() %>% 
   mutate(
@@ -774,126 +742,6 @@ ggplot(enr.bd, aes(signed_logP, age)) +
 ~~~
 {: .language-r}
 
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Computation failed in `stat_ydensity()`
-Caused by error in `$<-.data.frame`:
-! replacement has 1 row, data has 0
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Computation failed in `stat_ydensity()`
-Caused by error in `$<-.data.frame`:
-! replacement has 1 row, data has 0
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Computation failed in `stat_ydensity()`
-Caused by error in `$<-.data.frame`:
-! replacement has 1 row, data has 0
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Computation failed in `stat_ydensity()`
-Caused by error in `$<-.data.frame`:
-! replacement has 1 row, data has 0
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Computation failed in `stat_ydensity()`
-Caused by error in `$<-.data.frame`:
-! replacement has 1 row, data has 0
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Computation failed in `stat_ydensity()`
-Caused by error in `$<-.data.frame`:
-! replacement has 1 row, data has 0
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Computation failed in `stat_ydensity()`
-Caused by error in `$<-.data.frame`:
-! replacement has 1 row, data has 0
-~~~
-{: .warning}
-
 <div class="figure" style="text-align: center">
 <img src="../fig/rmd-05-Male_5xFAD_biodomain-1.png" alt="plot of chunk Male_5xFAD_biodomain" width="612" />
 <p class="caption">plot of chunk Male_5xFAD_biodomain</p>
@@ -911,23 +759,7 @@ enr.bd = mm.ora %>%
   mutate(Biodomain = if_else( is.na(Biodomain), 'none', Biodomain),
          signed_logP = -log10(p.adjust),
          signed_logP = if_else(dir == 'ora_dn', -1*signed_logP, signed_logP))
-~~~
-{: .language-r}
 
-
-
-~~~
-Warning in left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = "ID"): Detected an unexpected many-to-many relationship between `x` and `y`.
-ℹ Row 304 of `x` matches multiple rows in `y`.
-ℹ Row 2364 of `y` matches multiple rows in `x`.
-ℹ If a many-to-many relationship is expected, set `relationship = "many-to-many"` to silence
-  this warning.
-~~~
-{: .warning}
-
-
-
-~~~
 bd.tally = tibble(domain = c(unique(biodom$Biodomain), 'none')) %>% 
   rowwise() %>% 
   mutate(
@@ -952,58 +784,6 @@ ggplot(enr.bd, aes(signed_logP, age)) +
 ~~~
 {: .language-r}
 
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Computation failed in `stat_ydensity()`
-Caused by error in `$<-.data.frame`:
-! replacement has 1 row, data has 0
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Computation failed in `stat_ydensity()`
-Caused by error in `$<-.data.frame`:
-! replacement has 1 row, data has 0
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Computation failed in `stat_ydensity()`
-Caused by error in `$<-.data.frame`:
-! replacement has 1 row, data has 0
-~~~
-{: .warning}
-
 <div class="figure" style="text-align: center">
 <img src="../fig/rmd-05-APOE4Trem2_biodomain-1.png" alt="plot of chunk APOE4Trem2_biodomain" width="612" />
 <p class="caption">plot of chunk APOE4Trem2_biodomain</p>
@@ -1012,21 +792,25 @@ Caused by error in `$<-.data.frame`:
 There aren't any terms enriched at the 4 month time point. Unlike the 5xFAD mice, APOE4Trem2 mice show a significant *down-regulation* of `Immune Response` terms, particularly at 8 months, as well as down-regulation in terms from `APP Metabolism` domain. There is an enrichment in terms from the `Synapse` domain for down-regulated genes, despite enrichments among down-regulated genes in cell death related domains `Autophagy` and `Apoptosis`.
 
 > ## Challenge 4
-> 1) Terms from `Immune Response` are enriched among the genes up in 5xFAD, but down in APOE4Trem2. Are these similar or different terms in each set? Focus on the 12 month old animals from each model.
+> Terms from `Immune Response` are enriched among the genes up in 5xFAD, but down in APOE4Trem2. Are these similar or different terms in each set? Focus on the 12 month old animals from each model.
 >
 > > ## Solution to Challenge 4
 > >
-> > 1). First, get the list of terms associated with up- and down-regulated genes in each model:
-> >     `xf = mm.ora %>% filter(model == '5xFAD', sex == 'male', age == 12, dir == 'ora_up') %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(Biodomain == 'Immune Response') %>% pull(Description)`
-> >     `at = mm.ora %>% filter(model == 'APOE4Trem2', sex == 'male', age == 12, dir == 'ora_dn') %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(Biodomain == 'Immune Response') %>% pull(Description)`
-> >     Next how many terms are in each list and how many terms overlap?
-> >     `length(xf)`
-> >     434
-> >     `length(at)`
-> >     113
-> >     `length(intersect(at,xf))`
-> >     108
-> >     Almost all terms (95.5%) enriched in the down-regulated analysis from APOE4Trem2 are also found in the enrichments from the up-regulated genes in 5xFAD.
+> > First, get the list of terms associated with up- and down-regulated genes in each model:
+> >
+> > ~~~
+> > xf = mm.ora %>% filter(model == '5xFAD', sex == 'male', age == 12, dir == 'ora_up') %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(Biodomain == 'Immune Response') %>% pull(Description)
+> > at = mm.ora %>% filter(model == 'APOE4Trem2', sex == 'male', age == 12, dir == 'ora_dn') %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(Biodomain == 'Immune Response') %>% pull(Description)
+> > ~~~
+> > {: .language-r}
+> > Next how many terms are in each list and how many terms overlap?
+> > ~~~
+> > length(xf)
+> > length(at)
+> > length(intersect(at,xf))
+> > ~~~
+> > {: .language-r}
+> > Almost all terms (95.5%) enriched in the down-regulated analysis from APOE4Trem2 are also found in the enrichments from the up-regulated genes in 5xFAD.
 > {: .solution}
 {: .challenge}
 
@@ -1067,23 +851,7 @@ enr.bd = hs.ora %>%
   mutate(Biodomain = if_else( is.na(Biodomain), 'none', Biodomain),
          signed_logP = -log10(p.adjust),
          signed_logP = if_else(dir == 'ora_dn', -1*signed_logP, signed_logP))
-~~~
-{: .language-r}
 
-
-
-~~~
-Warning in left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = "ID"): Detected an unexpected many-to-many relationship between `x` and `y`.
-ℹ Row 302 of `x` matches multiple rows in `y`.
-ℹ Row 2638 of `y` matches multiple rows in `x`.
-ℹ If a many-to-many relationship is expected, set `relationship = "many-to-many"` to silence
-  this warning.
-~~~
-{: .warning}
-
-
-
-~~~
 bd.tally = tibble(domain = c(unique(biodom$Biodomain), 'none')) %>% 
   rowwise() %>% 
   mutate(
@@ -1106,24 +874,6 @@ ggplot(enr.bd, aes(signed_logP, Biodomain)) +
   scale_fill_identity()+scale_color_identity()
 ~~~
 {: .language-r}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
-
-
-
-~~~
-Warning: Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-Groups with fewer than two data points have been dropped.
-~~~
-{: .warning}
 
 <div class="figure" style="text-align: center">
 <img src="../fig/rmd-05-biodomain_one_tissue_per_cohort-1.png" alt="plot of chunk biodomain_one_tissue_per_cohort" width="612" />
@@ -1198,23 +948,7 @@ enr.bd <- comb_5x %>%
   left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% 
   relocate(Biodomain) %>% 
   mutate(Biodomain = if_else( is.na(Biodomain), 'none', Biodomain))
-~~~
-{: .language-r}
 
-
-
-~~~
-Warning in left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = "ID"): Detected an unexpected many-to-many relationship between `x` and `y`.
-ℹ Row 306 of `x` matches multiple rows in `y`.
-ℹ Row 3065 of `y` matches multiple rows in `x`.
-ℹ If a many-to-many relationship is expected, set `relationship = "many-to-many"` to silence
-  this warning.
-~~~
-{: .warning}
-
-
-
-~~~
 bd.tally = tibble(domain = c(unique(biodom$Biodomain), 'none')) %>% 
   rowwise() %>% 
   mutate(
@@ -1235,13 +969,6 @@ ggplot(enr.bd, aes(hs, mm)) +
   scale_fill_identity()
 ~~~
 {: .language-r}
-
-
-
-~~~
-Warning: Removed 1 rows containing missing values (`geom_point()`).
-~~~
-{: .warning}
 
 <div class="figure" style="text-align: center">
 <img src="../fig/rmd-05-annotated_biodomains-1.png" alt="plot of chunk annotated_biodomains" width="612" />
@@ -1315,13 +1042,16 @@ Many of the terms that are enriched among the down-regulated genes from APOE4Tre
 Overall, by aligning human and mouse omics signatures through the lens of domains affected in each context, we can get a better understanding of the relationships between the biological processes affected in each context. 
 
 > ## Challenge 5
-> 1) We haven't focused on it much, but there are terms that aren't in a biodomain and are enriched in opposite direction between the human and mouse model tests. Are there any terms that *aren't* annotated to a biodomain, but are up in humand and down in both animal model tests?
+> We haven't focused on it much, but there are terms that aren't in a biodomain and are enriched in opposite direction between the human and mouse model tests. Are there any terms that *aren't* annotated to a biodomain, but are up in humand and down in both animal model tests?
 >
 > > ## Solution to Challenge 5
 > >
-> > 1). First, get the list of terms associated with up- and down-regulated genes in each model:
-> >     `intersect( comb_5x %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>%  filter(is.na(Biodomain), hs > 0, mm < 0) %>% pull(Description), comb_at %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(is.na(Biodomain), hs > 0, mm < 0) %>% pull(Description) )`
-> >     Intriguingly there are some apparently relevant terms, such as "negative regulation of gliogenesis", that are up in human cohort and down in both mouse models. The biological domain annotations are a helpful tool, but certainly not the whole picture. 
+> > First, get the list of terms associated with up- and down-regulated genes in each model:
+> > ~~~
+> > intersect( comb_5x %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>%  filter(is.na(Biodomain), hs > 0, mm < 0) %>% pull(Description), comb_at %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(is.na(Biodomain), hs > 0, mm < 0) %>% pull(Description) )
+> > ~~~
+> > {: .language-r}
+> > Intriguingly there are some apparently relevant terms, such as "negative regulation of gliogenesis", that are up in human cohort and down in both mouse models. The biological domain annotations are a helpful tool, but certainly not the whole picture. 
 > {: .solution}
 {: .challenge}
 
@@ -1354,13 +1084,14 @@ attached base packages:
 [8] base     
 
 other attached packages:
- [1] synapser_1.0.59       cowplot_1.1.1         clusterProfiler_4.8.1
- [4] org.Hs.eg.db_3.17.0   org.Mm.eg.db_3.17.0   AnnotationDbi_1.62.1 
- [7] IRanges_2.34.0        S4Vectors_0.38.1      Biobase_2.60.0       
-[10] BiocGenerics_0.46.0   lubridate_1.9.2       forcats_1.0.0        
-[13] stringr_1.5.0         dplyr_1.1.2           purrr_1.0.1          
-[16] readr_2.1.4           tidyr_1.3.0           tibble_3.2.1         
-[19] ggplot2_3.4.2         tidyverse_2.0.0       knitr_1.43           
+ [1] ggridges_0.5.4        synapser_1.0.59       cowplot_1.1.1        
+ [4] clusterProfiler_4.8.1 org.Hs.eg.db_3.17.0   org.Mm.eg.db_3.17.0  
+ [7] AnnotationDbi_1.62.1  IRanges_2.34.0        S4Vectors_0.38.1     
+[10] Biobase_2.60.0        BiocGenerics_0.46.0   lubridate_1.9.2      
+[13] forcats_1.0.0         stringr_1.5.0         dplyr_1.1.2          
+[16] purrr_1.0.1           readr_2.1.4           tidyr_1.3.0          
+[19] tibble_3.2.1          ggplot2_3.4.2         tidyverse_2.0.0      
+[22] knitr_1.43           
 
 loaded via a namespace (and not attached):
   [1] DBI_1.1.3               bitops_1.0-7            gson_0.1.0             

@@ -30,7 +30,7 @@ suppressPackageStartupMessages(library("org.Hs.eg.db"))
 suppressPackageStartupMessages(library("clusterProfiler"))
 suppressPackageStartupMessages(library("cowplot"))
 suppressPackageStartupMessages(library("synapser"))
-
+suppressPackageStartupMessages(library("ggridges"))
 ```
 
 <!-- ## Download data (some/all of this may have already been done and/or computed in previous steps) -->
@@ -71,13 +71,13 @@ Most omics analysis approaches produce data on many thousands of genomic feature
 
 Gene functional enrichment analysis describes a variety of statistical methods that identify groups of genes that share a particular biological function or process and show differential association with experimental conditions. Most approaches compare some statistically valid set of differentially expressed features to sets of functional annotations for those features. There are many different functional annotation sets available, some of the more commonly used include:  
 
- * gene function resources, such as the [`Gene Ontology`](amigo.geneontology.org/amigo){target='_blank'} (i.e. GO)    
- * pathway databases, such as [`Reactome`](reactiome.org){target='_blank'} or [`KEGG`](www.genome.jp/kegg/){target='_blank'}   
- * disease and phenotype ontologies, such as the [`Human Phenotype Ontology`](hpo.jax.org/app){target='_blank'}, the [`Mammailian Phenotype Ontology`](www.informatics.jax.org/vocab/mp_ontology){target='_blank'}, and the [`Disease Ontology`](https://disease-ontology.org/){target='_blank'}   
+ * gene function resources, such as the [Gene Ontology](amigo.geneontology.org/amigo) (i.e. GO)    
+ * pathway databases, such as [Reactome](reactiome.org) or [KEGG](www.genome.jp/kegg/)   
+ * disease and phenotype ontologies, such as the [Human Phenotype Ontology](hpo.jax.org/app), the [Mammalian Phenotype Ontology](www.informatics.jax.org/vocab/mp_ontology), and the [Disease Ontology](https://disease-ontology.org/)   
 
-These are the resources that are the foundation for many genomics knowledge bases, such as [`MGI`](www.informatics.jax.org){target='_blank'}, [`monarch initiative`](monarchinitiative.org){target='_blank'}, and  the [`Alliance of Genome Resources`](alliancegenome.org){taret='_blank'}. The the precise nature of each of these resources varies, but the core information contained within each is the relationship of sets of genes to biologically meaningful annotations. These annotations are typically expertly curated from the published literature.
+These are the resources that are the foundation for many genomics knowledge bases, such as [MGI](www.informatics.jax.org), [monarch initiative](monarchinitiative.org), and  the [Alliance of Genome Resources](alliancegenome.org). The the precise nature of each of these resources varies, but the core information contained within each is the relationship of sets of genes to biologically meaningful annotations. These annotations are typically expertly curated from the published literature.
 
-There are a variety of statistical approaches that can be employed to test for functional enrichment among genes identified from an omics dataset. Two of the most common broad classes of tests are *over-representation analysis (ORA)* and *gene set enrichment analysis (GSEA)*. For example, consider the figure below from [Zhao & Rhee, Trends in Genetics (2023)](https://doi.org/10.1016/j.tig.2023.01.003){target='_blank'}. Let's consider each in a bit more detail.  
+There are a variety of statistical approaches that can be employed to test for functional enrichment among genes identified from an omics dataset. Two of the most common broad classes of tests are *over-representation analysis (ORA)* and *gene set enrichment analysis (GSEA)*. For example, consider the figure below from [Zhao & Rhee, Trends in Genetics (2023)](https://doi.org/10.1016/j.tig.2023.01.003). Let's consider each in a bit more detail.  
 
 ![Functional enrichment approaches](../fig/Zhao_Rhee_TrendsGenetics_pathway_enrichment.jpg)
 
@@ -92,8 +92,8 @@ Let's start by considering the enrichments from the mouse data analyzed previous
 
 ```{r}
 theme_set(theme_bw())
-# load('../results/DEAnalysis_5XFAD.RData')
-load('../data/DEAnalysis_5XFAD.RData')
+load('../results/DEAnalysis_5XFAD.RData')
+#load('../data/DEAnalysis_5XFAD.RData')
 ```
 
 We'll start by considering the genes that are significantly DE in 12 month old male animals
@@ -163,14 +163,16 @@ enr.dn@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length(
 >
 > > ## Solution to Challenge 1
 > >
-> > 1). `enrichGO(gene.list.up, ont = 'all', OrgDb = org.Mm.eg.db, keyType = 'SYMBOL') %>%  .@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()`  
-> >     2340  
+> > ~~~
+> > enrichGO(gene.list.up, ont = 'all', OrgDb = org.Mm.eg.db, keyType = 'SYMBOL') %>% .@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()  
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 
 Plot the top 10 significant terms:  
 
-```{r significant_terms}
+```{r significant_terms, fig.width=10}
 cowplot::plot_grid(
   dotplot(enr.dn, showCategory = 10) + ggtitle('down'),
   dotplot(enr.up, showCategory = 10) + ggtitle('up')
@@ -213,8 +215,11 @@ enr@result %>% filter(p.adjust <= 0.05) %>% pull(ID) %>% unique() %>% length()
 >
 > > ## Solution to Challenge 2
 > >
-> > `enr@result %>% filter(p.adjust <= 0.05, NES < 0) %>% pull(ID) %>% unique() %>% length()`  
-> > `enr@result %>% filter(p.adjust <= 0.05, NES > 0) %>% pull(ID) %>% unique() %>% length()`
+> > ~~~
+> > enr@result %>% filter(p.adjust <= 0.05, NES < 0) %>% pull(ID) %>% unique() %>% length()  
+> > enr@result %>% filter(p.adjust <= 0.05, NES > 0) %>% pull(ID) %>% unique() %>% length()
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 
@@ -251,7 +256,7 @@ In order to formalize and operationalize these endophenotypic areas, the [Emory-
  * *intelligible:* groupings should be easy to understand  
  * *modifiable:* definitions should be (and are!) continuously be updated. 
 
-In all 19 distinct biological domains (aka biodoms) have been identified. These biological domains are defined using sets of GO terms that align with the endophenotype. For example, terms like "cytokine receptor binding" and "leukocyte migration" are annotated to the `Immune Response` biodomain, while terms like "postsynaptic density" and "synaptic vesicle cycle" are annotated to the `Synapse` biodomain. Of all terms in the GO, 7,127 terms (16.4%) are annotated to one of the biological domains. Because the GO terms have genes annotated, genes can be associate with specific endophenotypes via the biological domain groupings of terms. In all, 18,289 genes annotated to at least 1 biodom term. While the biodomains exhibit very few overlapping GO terms (panel A), due to gene pleiotropy (etc) the number of overlapping genes between biological domains is quite a bit higher (panel B). The development of the biological domains is described in more detail in the medRxiv preprint [Genetic and Multi-omic Risk Assessment of Alzheimer’s Disease Implicates Core Associated Biological Domains](www.medrxiv.org/content/10.1101/2022.12.15.22283478v1.full){target='_blank'}.  
+In all 19 distinct biological domains (aka biodoms) have been identified. These biological domains are defined using sets of GO terms that align with the endophenotype. For example, terms like "cytokine receptor binding" and "leukocyte migration" are annotated to the `Immune Response` biodomain, while terms like "postsynaptic density" and "synaptic vesicle cycle" are annotated to the `Synapse` biodomain. Of all terms in the GO, 7,127 terms (16.4%) are annotated to one of the biological domains. Because the GO terms have genes annotated, genes can be associate with specific endophenotypes via the biological domain groupings of terms. In all, 18,289 genes annotated to at least 1 biodom term. While the biodomains exhibit very few overlapping GO terms (panel A), due to gene pleiotropy (etc) the number of overlapping genes between biological domains is quite a bit higher (panel B). The development of the biological domains is described in more detail in the medRxiv preprint [Genetic and Multi-omic Risk Assessment of Alzheimer’s Disease Implicates Core Associated Biological Domains](www.medrxiv.org/content/10.1101/2022.12.15.22283478v1.full). 
 
 ![AD Biodomain Demographics](../fig/score_domains_preprint_F1_cropped.jpeg)
 
@@ -344,7 +349,7 @@ ggplot(enr.bd, aes(NES, Biodomain)) +
 
 We can produce a similar plot for the ORA results. Let's combine the up and down analyses into one, and make the adjusted p-value signed so that we can look at terms that are up and down separately:  
 
-```{r ORA_results}
+```{r ORA_results, warning=FALSE, message=FALSE}
 enr.ora = bind_rows(
   enr.up@result %>% mutate(dir = 'up'),
   enr.dn@result %>% mutate(dir = 'dn')
@@ -384,14 +389,28 @@ Because there are many more significantly enriched terms from the ORA, there is 
 >
 > > ## Solution to Challenge 3
 > >
-> > 1). `intersect(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) %>% length()`  
-> >     133 in common
-> >     `setdiff(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) %>% length()`
-> >     20 unique to GSEA
-> >     `setdiff(enr.ora$Description[enr.ora$Biodomain!='none'], enr.bd$Description[enr.bd$Biodomain!='none']) %>% length()`
-> >     908 unique to ORA
-> > 2). `enr.bd %>% filter( Description %in% setdiff(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) ) %>% group_by(Biodomain) %>% summarise(terms = paste0(Description, collapse = ', '))`
-> >     Most terms unique to GSEA are from the `Immune Response` domain (13), but there are also terms from `Structural Stabilization` (4), `Apoptosis` (2), and `Synapse` (1) that are unique to the GSEA results. 
+> > 1). 
+> > ~~~
+> > intersect(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) %>% length()  
+> > ~~~
+> > {: .language-r}
+> > 133 in common
+> > ~~~
+> > setdiff(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) %>% length()
+> > ~~~
+> > {: .language-r}
+> > 20 unique to GSEA
+> > ~~~
+> > setdiff(enr.ora$Description[enr.ora$Biodomain!='none'], enr.bd$Description[enr.bd$Biodomain!='none']) %>% length()
+> > ~~~
+> > {: .language-r}
+> > 908 unique to ORA
+> > 2). 
+> > ~~~
+> > enr.bd %>% filter( Description %in% setdiff(enr.bd$Description[enr.bd$Biodomain!='none'], enr.ora$Description[enr.ora$Biodomain!='none']) ) %>% group_by(Biodomain) %>% summarise(terms = paste0(Description, collapse = ', '))
+> > ~~~
+> > {: .language-r}
+> > Most terms unique to GSEA are from the 'Immune Response' domain (13), but there are also terms from 'Structural Stabilization' (4), 'Apoptosis' (2), and 'Synapse' (1) that are unique to the GSEA results. 
 > {: .solution}
 {: .challenge}
 
@@ -399,7 +418,7 @@ Because there are many more significantly enriched terms from the ORA, there is 
 
 Let's take a look at how biodomain enrichments from the MODEL-AD strains change with respect to the age of the model. To save some time, let's load some pre-computed enrichment results for mouse & human data.  
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 mm.ora <- bind_rows(
   read_tsv('../data/5xFAD_ora_results.tsv', col_types = cols()) %>%
     mutate(age = str_remove_all(age, ' mo') %>% as.double()),
@@ -416,7 +435,7 @@ hs.gsea <- read_tsv('../data/Hsap_gsea_results.tsv', col_types = cols())
 ```
 
 Annotate and plot the 5xFAD Male results, this time faceting by biodomain to compare across the age groups:
-```{r Male_5xFAD_biodomain}
+```{r Male_5xFAD_biodomain, warning=FALSE, message=FALSE}
 enr.bd = mm.ora %>% 
   filter(model == '5xFAD', sex == 'male') %>% 
   left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% 
@@ -450,7 +469,7 @@ ggplot(enr.bd, aes(signed_logP, age)) +
 The `Immune Response` terms are over-represented among the up-regulated genes at all ages, but the overall significance of the associations increase with age. Similar age-dependent trends are apparent in other domains as well. Of note is the increasing number of terms from the `Synapse` domain over-represented among the down-regulated genes as the animals age. 
 
 Let's consider the APOE4Trem2 results. Annotate the biodomains and plot the results of ORA from the DE genes in APOE4Trem2 Males:
-```{r APOE4Trem2_biodomain}
+```{r APOE4Trem2_biodomain, warning=FALSE, message=FALSE}
 enr.bd = mm.ora %>% 
   filter(model == 'APOE4Trem2', sex == 'male') %>% 
   left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% 
@@ -485,21 +504,25 @@ ggplot(enr.bd, aes(signed_logP, age)) +
 There aren't any terms enriched at the 4 month time point. Unlike the 5xFAD mice, APOE4Trem2 mice show a significant *down-regulation* of `Immune Response` terms, particularly at 8 months, as well as down-regulation in terms from `APP Metabolism` domain. There is an enrichment in terms from the `Synapse` domain for down-regulated genes, despite enrichments among down-regulated genes in cell death related domains `Autophagy` and `Apoptosis`.
 
 > ## Challenge 4
-> 1) Terms from `Immune Response` are enriched among the genes up in 5xFAD, but down in APOE4Trem2. Are these similar or different terms in each set? Focus on the 12 month old animals from each model.
+> Terms from `Immune Response` are enriched among the genes up in 5xFAD, but down in APOE4Trem2. Are these similar or different terms in each set? Focus on the 12 month old animals from each model.
 >
 > > ## Solution to Challenge 4
 > >
-> > 1). First, get the list of terms associated with up- and down-regulated genes in each model:
-> >     `xf = mm.ora %>% filter(model == '5xFAD', sex == 'male', age == 12, dir == 'ora_up') %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(Biodomain == 'Immune Response') %>% pull(Description)`
-> >     `at = mm.ora %>% filter(model == 'APOE4Trem2', sex == 'male', age == 12, dir == 'ora_dn') %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(Biodomain == 'Immune Response') %>% pull(Description)`
-> >     Next how many terms are in each list and how many terms overlap?
-> >     `length(xf)`
-> >     434
-> >     `length(at)`
-> >     113
-> >     `length(intersect(at,xf))`
-> >     108
-> >     Almost all terms (95.5%) enriched in the down-regulated analysis from APOE4Trem2 are also found in the enrichments from the up-regulated genes in 5xFAD.
+> > First, get the list of terms associated with up- and down-regulated genes in each model:
+> >
+> > ~~~
+> > xf = mm.ora %>% filter(model == '5xFAD', sex == 'male', age == 12, dir == 'ora_up') %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(Biodomain == 'Immune Response') %>% pull(Description)
+> > at = mm.ora %>% filter(model == 'APOE4Trem2', sex == 'male', age == 12, dir == 'ora_dn') %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(Biodomain == 'Immune Response') %>% pull(Description)
+> > ~~~
+> > {: .language-r}
+> > Next how many terms are in each list and how many terms overlap?
+> > ~~~
+> > length(xf)
+> > length(at)
+> > length(intersect(at,xf))
+> > ~~~
+> > {: .language-r}
+> > Almost all terms (95.5%) enriched in the down-regulated analysis from APOE4Trem2 are also found in the enrichments from the up-regulated genes in 5xFAD.
 > {: .solution}
 {: .challenge}
 
@@ -514,7 +537,7 @@ hs.ora %>% select(Study, Tissue) %>% distinct()
 
 We can focus on one tissue per cohort, let's look at TCX for Mayo, PHG for Mt Sinai, and DLPFC for ROSMAP. 
 
-```{r biodomain_one_tissue_per_cohort}
+```{r biodomain_one_tissue_per_cohort, warning=FALSE, message=FALSE}
 enr.bd = hs.ora %>% 
   filter(Tissue %in% c('TCX','PHG','DLPFC')) %>% 
   left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% 
@@ -547,7 +570,7 @@ ggplot(enr.bd, aes(signed_logP, Biodomain)) +
 
 Huh, the Mayo and MSSM look largely similar, but the ROSMAP DLPFC doesn't have very many enriched terms. Let's ignore the ROSMAP result for now and compare the terms enriched between Mayo TCX and the 5xFAD males. First we can join up the enriched terms between the sets into one data frame.
 
-```{r }
+```{r}
 comb_5x = bind_rows(
   hs.ora %>% 
     filter(Study == 'MAYO', Tissue == 'TCX') %>% 
@@ -572,7 +595,7 @@ head(comb_5x)
 
 Great! Now let's annotate the biodomains and plot it up:
 
-```{r annotated_biodomains}
+```{r annotated_biodomains, warning=FALSE, message=FALSE}
 enr.bd <- comb_5x %>% 
   left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% 
   relocate(Biodomain) %>% 
@@ -651,13 +674,16 @@ Many of the terms that are enriched among the down-regulated genes from APOE4Tre
 Overall, by aligning human and mouse omics signatures through the lens of domains affected in each context, we can get a better understanding of the relationships between the biological processes affected in each context. 
 
 > ## Challenge 5
-> 1) We haven't focused on it much, but there are terms that aren't in a biodomain and are enriched in opposite direction between the human and mouse model tests. Are there any terms that *aren't* annotated to a biodomain, but are up in humand and down in both animal model tests?
+> We haven't focused on it much, but there are terms that aren't in a biodomain and are enriched in opposite direction between the human and mouse model tests. Are there any terms that *aren't* annotated to a biodomain, but are up in humand and down in both animal model tests?
 >
 > > ## Solution to Challenge 5
 > >
-> > 1). First, get the list of terms associated with up- and down-regulated genes in each model:
-> >     `intersect( comb_5x %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>%  filter(is.na(Biodomain), hs > 0, mm < 0) %>% pull(Description), comb_at %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(is.na(Biodomain), hs > 0, mm < 0) %>% pull(Description) )`
-> >     Intriguingly there are some apparently relevant terms, such as "negative regulation of gliogenesis", that are up in human cohort and down in both mouse models. The biological domain annotations are a helpful tool, but certainly not the whole picture. 
+> > First, get the list of terms associated with up- and down-regulated genes in each model:
+> > ~~~
+> > intersect( comb_5x %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>%  filter(is.na(Biodomain), hs > 0, mm < 0) %>% pull(Description), comb_at %>% left_join(., biodom %>% select(Biodomain, ID = GO_ID), by = 'ID') %>% filter(is.na(Biodomain), hs > 0, mm < 0) %>% pull(Description) )
+> > ~~~
+> > {: .language-r}
+> > Intriguingly there are some apparently relevant terms, such as "negative regulation of gliogenesis", that are up in human cohort and down in both mouse models. The biological domain annotations are a helpful tool, but certainly not the whole picture. 
 > {: .solution}
 {: .challenge}
 
