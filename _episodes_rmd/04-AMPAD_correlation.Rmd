@@ -11,6 +11,9 @@ objectives:
 - "Approach to align mouse data to human data"
 - "Perform correlation analysis."
 - "visualize the results"
+keypoints:
+- "AMP-AD gene modules represent major transcriptomic heterogeneity in AD."
+- "Correlation of logFC is a practical approach for human-mouse alignment of AD-associated transcriptmic signatures."
 ---
 
 Author: Ravi Pandey, Jackson Laboratory
@@ -68,10 +71,7 @@ First module block enriched in astrocytes, next block is enriched in endothelial
 
 ![AMP-AD GENE Modules](../fig/Picture1.png)
 
-
 Here we are showing matrix view of gene content overlap between these  module, and you can see few strongly overlapping group of modules, implicating similar pathology in different studies in different brain regions.
-
-
 
 ## Reading AMP-AD modules data
 
@@ -120,8 +120,11 @@ ggplot(module_table,aes(x=Module)) +
 > What are other ways to count genes in each module? 
 >
 > > ## Solution to Challenge 1
-> > ``
-> > `dplyr::count(module_table ,Module)`
+> >
+> > ~~~
+> > dplyr::count(module_table ,Module)
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 
@@ -402,7 +405,7 @@ head(correlation_for_plot)
 
 ### Visualizing the Correlation plot
 Now, we will use above matrix and visualize the correlation results using ggplot2 package.
-```{r AMPAD1}
+```{r AMPAD1, fig.height=4, fig.width=10}
 
 data <- correlation_for_plot
 range(correlation_for_plot$correlation)
@@ -511,7 +514,7 @@ We can use these functions directly onto our other dataset from LOAD1 cohort.
 #### Reading Gene Expression Count matrix of LOAD1 cohort from Previous Lesson
 
 ```{r LOAD1}
-load("../result/DEAnalysis_LOAD1.Rdata")
+load("../results/DEAnalysis_LOAD1.Rdata")
 ```
 
 First, check the data: 
@@ -528,7 +531,7 @@ unique(DE_LOAD1.df$age)
 #### Perform the correlation analysis
 
 We directly input logFC table `DE_LOAD1.df` to `corr_function`:
-```{r AMPAD2, message=FALSE, warning=FALSE,fig.width = 18, fig.height = 10}
+```{r AMPAD2, message=FALSE, warning=FALSE,fig.width = 8, fig.height = 5}
 order.model <- c("APOE4 (Male)", "APOE4 (Female)","Trem2 (Male)", "Trem2 (Female)","APOE4Trem2 (Male)", "APOE4Trem2 (Female)")
 
 correlation_for_plot <- corr_function(DE_LOAD1.df)
