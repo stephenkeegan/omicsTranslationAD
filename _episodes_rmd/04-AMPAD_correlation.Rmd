@@ -4,13 +4,13 @@ output: html_document
 teaching: 30
 exercises: 10
 questions:
-- "How well transcriptomic changes we observe in mouse models carrying AD-related mutations align with human AD data?"
-- "How do we perfrom corss-species comparison"
+- "How well do transcriptomic changes we observe in mouse models carrying AD-related mutations align with human AD data?"
+- "How do we perfrom a cross-species comparison"
 objectives:
 - "Understand the human AD modules."
 - "Approach to align mouse data to human data"
 - "Perform correlation analysis."
-- "visualize the results"
+- "Visualize the results"
 keypoints:
 - "AMP-AD gene modules represent major transcriptomic heterogeneity in AD."
 - "Correlation of logFC is a practical approach for human-mouse alignment of AD-associated transcriptomic signatures."
@@ -43,16 +43,16 @@ synLogin(silent=TRUE)
 
 ## Aligning Human and Mouse Phenotype
 
-ALZHEIMER'S DISEASE (AD) is complex disease, we do not expect these mouse models have complete LOAD (late-onset AD) pathology. We can do MRI as well PET imaging to match  back to human imaging study ADNI, we can do neuropathology, finally we can do lots of Genomics, proteomics, and metabolomics. These omics study allows us to do real direct homology comparison between human and mouse as genes are overwhemly shared between these two species.
+Alzheimer's Disease (AD) is complex disease, we do not expect these mouse models to have complete late onset AD (LOAD) pathology. To study AD, we utilize MRI and PET imaging to match  back to the human imaging study [ADNI](https://adni.loni.usc.edu/), neuropathology information, and lots of genomics, proteomics, and metabolomics. These omics studies allow us to do real direct homology comparison between human and mouse since a significant portion of genes are  shared between these two species.
 
 
 ![Aligning Human and Mouse Phenotype](../fig/Picture3.png)
 
 
 ## Overview of Human transcriptomic data
-Three independent human brain transcriptome studies ROSMAP [Religious Orders Study and the Memory and Aging Project], MSSM [Mount Sinai School of Medicine], and Mayo collected human postmortem brain RNA-seq data from seven distinct regions: dorsolateral prefrontal cortex (DLPFC), temporal cortex (TCX), inferior frontal gyrus (IFG), superior temporal gyrus (STG), frontal pole (FP), parahippocampal gyrus (PHG), and cerebellum (CBE), 
+There are three independent human brain transcriptome studies. They are the Religious Orders Study and the Memory and Aging Project [(ROSMAP)](https://adknowledgeportal.synapse.org/Explore/Studies/DetailsPage/StudyDetails?Study=syn3219045), Mount Sinai Brain Bank [(MSBB)](https://adknowledgeportal.synapse.org/Explore/Studies/DetailsPage/StudyDetails?Study=syn3159438), and [Mayo RNAseq Study](https://adknowledgeportal.synapse.org/Explore/Studies/DetailsPage/StudyDetails?Study=syn5550404). Collected human postmortem brain RNA-seq data from seven distinct regions: dorsolateral prefrontal cortex (DLPFC), temporal cortex (TCX), inferior frontal gyrus (IFG), superior temporal gyrus (STG), frontal pole (FP), parahippocampal gyrus (PHG), and cerebellum (CBE), 
 
-These postmortem samples are generally balanced for AD, MCI, and non-effected controls. This really give us broad assessment how AD as affecetd multiple brain region in 3 different population around the US.
+These postmortem samples are generally balanced for AD, MCI, and non-effected controls. This  provides a broad assessment how AD has affected multiple brain regions in 3 different populations around the US.
 
 
 ![Transcriptomic of Alzheimer's Disease](../fig/Picture2.png)
@@ -60,22 +60,22 @@ These postmortem samples are generally balanced for AD, MCI, and non-effected co
 
 ## Overview of Human Consensus RNA-Seq Coexpression Modules
 
-The Accelerating Medicines Partnership-Alzheimer’s Disease (AMP-AD) Consortium has generated RNA-seq profiles from more than 1,200 human brains and is applying systems biology approaches toward the goal of elucidating AD mechanisms and potential therapeutic targets.
+The Accelerating Medicines Partnership-Alzheimer’s Disease [(AMP-AD Consortium)](https://adknowledgeportal.synapse.org/Explore/Programs/DetailsPage?Program=AMP-AD)  has generated RNA-seq profiles from more than 1,200 human brains and is applying systems biology approaches toward the goal of elucidating AD mechanisms and potential therapeutic targets.
 
-[Wan, et al.](https://doi.org/10.1016/j.celrep.2020.107908) performed meta analysis including all available AMP-AD RNA-seq datasets and systematically define correspondences between gene expression changes associated with AD in human brains. Briefly, [Wan, et al.](https://doi.org/10.1016/j.celrep.2020.107908) performed library normalization and covariate adjustments for each human study separately using fixed/mixed effects modeling to account for batch effects. Among the 2978 AMP-AD modules identified across all tissues, 660 modules were selected which showed an enrichment for at least one AD-specific differential expressed gene set from the meta-analysis in cases compared to controls. 
+[Wan, et al.](https://doi.org/10.1016/j.celrep.2020.107908) performed meta analysis including all available AMP-AD RNA-seq datasets and systematically defined correspondences between gene expression changes associated with AD in human brains. Briefly, [Wan, et al.](https://doi.org/10.1016/j.celrep.2020.107908) performed library normalization and covariate adjustments for each human study separately using fixed/mixed effects modeling to account for batch effects. Among the 2978 AMP-AD modules identified across all tissues, 660 modules were selected which showed an enrichment for at least one AD-specific differential expressed gene set from the meta-analysis in cases compared to controls. 
 
-Next, they performed multi method co-expression network analysis  followed by differential analysis and found 30 co-expression modules related LOAD pathology from human cohort study. Among the 30 aggregate co-expression modules, five consensus clusters have been described by Wan, et al. These consensus clusters consist of a subset of modules which are associated with similar AD related changes across the multiple studies and brain regions. Further, they looked for enrichment of cell type signature in these modules using expression-weighted cell type enrichment analysis [Skene and Grant, 2016](https://doi.org/10.3389/fnins.2016.00016) as well as  applied functional annotation to these modules.
+Next, they performed multi method co-expression network analysis followed by differential analysis and found 30 co-expression modules related to LOAD pathology from a human cohort study. Among the 30 aggregate co-expression modules, five consensus clusters have been described by [Wan, et al.](https://doi.org/10.1016/j.celrep.2020.107908) These consensus clusters consist of a subset of modules which are associated with similar AD related changes across the multiple studies and brain regions. Further, they looked for enrichment of cell type signatures in these modules using expression-weighted cell type enrichment analysis [Skene and Grant, 2016](https://doi.org/10.3389/fnins.2016.00016) as well as  applied functional annotations to these modules.
 
-First module block enriched in astrocytes, next block is enriched in endothelial and microglial genes suggesting strong inflammation component, next block in strongly enriched in neuron suggesting neurodegeneration, next is enriched in oligodendrocytes and glial genes suggesting myelination and finally mixed modules that have things to do like stress response and response to unfolded proteins. Stress response not cell specific,so they may be throughout many cells in brain.
+The first module block is enriched in astrocytes, the next block is enriched in endothelial and microglial genes suggesting strong inflammation component, the third block in strongly enriched in neuron suggesting neurodegeneration, fourth is enriched in oligodendrocytes and glial genes suggesting myelination and finally mixed modules that have things to do like stress response and response to unfolded proteins. Stress response is not cell specific, so they may be throughout many cells in brain.
 
 
 ![AMP-AD GENE Modules](../fig/Picture1.png)
 
-Here we are showing matrix view of gene content overlap between these  module, and you can see few strongly overlapping group of modules, implicating similar pathology in different studies in different brain regions.
+Here we are showing a matrix view of gene content overlap between these  modules, and you can see a few strongly overlapping group of modules, implicating similar pathology in different studies in different brain regions.
 
 ## Reading AMP-AD modules data
 
-You can download data on the 30 human AMP-AD co-expression modules was obtained from the Synapse data repository (https://www.synapse.org/#!Synapse:syn11932957/tables/; SynapseID: syn11932957). 
+You can download data on the 30 human AMP-AD co-expression modules was obtained from the [Synapse data repository](https://www.synapse.org/#!Synapse:syn11932957/tables/). 
 
 ```{r AMP-AD1, warning=FALSE, message=FALSE}
 query <- synTableQuery("SELECT * FROM syn11932957")
@@ -87,10 +87,14 @@ Let's look at module table
 head(module_table)
 ```
 
-Here you see total 9 columns in this table. Column of our interest are:
-*Colum 2: human ensembl gene ID, 
+Here you see 9 columns in this table. Columns we're interested in are:
+
+*column 2: human ensembl gene ID, 
+
 *column 3: module name in which gene is clustered and 
+
 *column 7: is brain tissue.
+
 *column 9: is gene names.
 
 How many distinct modules are in table?
@@ -103,7 +107,7 @@ What are the name of modules?
 unique(module_table$Module)
 ```
 
-and how many genes are in each module?
+How many genes are in each module?
 ```{r}
 table(module_table$Module)
 ```
@@ -140,13 +144,13 @@ unique(module_table[c("Module", "brainRegion")])
 ```
 
 #### Mouse-Human orthologous gene conversion
-In module table, we have human ENSEMBL ids and gene names. But we will need corresponding mouse gene name, so that we can compare with our results from mouse models. To do this, we are going to add mouse orthologous gene names corresponding to human ENSEMBL id. Mouse orthologs for human genes were extracted using the [HCOP](https://www.genenames.org/tools/hcop/) tool (The HGNC Comparison of Orthology Predictions) by [Wan, et al.](https://doi.org/10.1016/j.celrep.2020.107908). We are going to read that table from the Synapse data repository (https://doi.org/10.7303/syn17010253.1,synapse id:syn17010253)
+In the module table, we have human ENSEMBL ids and gene names. We will need corresponding mouse gene names to compare our results from mouse models. We are going to add mouse orthologous gene names corresponding to human ENSEMBL id. Mouse orthologs for human genes were extracted using the [HCOP](https://www.genenames.org/tools/hcop/) tool (The HGNC Comparison of Orthology Predictions) by [Wan, et al.](https://doi.org/10.1016/j.celrep.2020.107908). We are going to read that table from the [Synapse data repository](https://doi.org/10.7303/syn17010253.1)
 
 ```{r AMP-AD2, warning=FALSE, message=FALSE}
 mouse.human.ortho <- fread(synapser::synGet("syn17010253")$path,check.names = F,header=T)
 ```
 
-Let's see top rows of this ortholog table:
+Let's see sometop rows of this ortholog table:
 ```{r}
 head(mouse.human.ortho)
 ```
@@ -160,7 +164,7 @@ module_table$Mouse_gene_name <- mouse.human.ortho$mouse_symbol[match(module_tabl
 head(module_table)
 ```
 
-We will only keep column of our interest and non-empty entries:
+We will only keep the columns of our interest and non-empty entries:
 ```{r}
 ampad_modules <- module_table %>%
   distinct(tissue = brainRegion, module = Module, gene = GeneID, Mouse_gene_name) %>%
@@ -173,7 +177,7 @@ head(ampad_modules)
 ```
 
 ## Reading differential expression result of human data from meta-analysis
-Differential expression meta-analysis of reprocessed RNASeq data from AMP-AD (all 7 brain regions). LogFC values for human transcripts were obtained via the AMP-AD knowledge portal(https://www.synapse.org/#!Synapse:syn11180450; SynapseID: syn11180450).  
+Differential expression meta-analysis of reprocessed RNASeq data from AMP-AD (all 7 brain regions). LogFC [values](https://www.synapse.org/#!Synapse:syn11180450) for human transcripts were obtained via the AMP-AD knowledge portal.  
 
 ```{r AMP-AD3, warning=FALSE, message=FALSE}
 ampad_modules_raw <- fread(synapser::synGet("syn11180450")$path,check.names = F,header=T)
@@ -197,7 +201,7 @@ unique(ampad_modules_raw$Comparison)
 ```
 
 
-For our analysis, we need data for "Diagnosis" model and comparison between cases vs controls. So, we subset the logFC data for these conditions. Also, we need only three columns: "Tissue","Gene" and "logFC".  So, we will filter and subset the data.
+For our analysis, we need data for the "Diagnosis" model and comparisons between case vs controls. We subset the logFC data for these conditions. We need only three columns: "Tissue","Gene" and "logFC".  So, we will filter and subset the data.
 ```{r AMP-AD4, warning=FALSE, message=FALSE}
 ampad_fc <- ampad_modules_raw %>%
   as_tibble() %>%
@@ -208,14 +212,14 @@ ampad_fc <- ampad_modules_raw %>%
 
 #### Combine with modules so correlation can be done per module
 
-Next, we will combine fold change table `ampad_fc` and module table `ampad_modules`. First, look at both tables to check how can we merge them together?
+Next, we will combine the fold change table `ampad_fc` and module table `ampad_modules`. First, look at both tables to check how can we merge them together?
 
 ```{r}
 head(ampad_fc)
 head(ampad_modules)
 ```
 In both tables, common columns are "gene" and "tissue". So we will merge both datasets using these two columns. 
-**Reminder**: Every gene can be present in multiple brain regions but only one module form any brain region. Let's check that:
+**Reminder**: Every gene can be present in multiple brain regions but only one module from per brain region. Let's check that:
 
 ```{r}
 ampad_modules[ampad_modules$gene %in% "ENSG00000168439",]
@@ -302,13 +306,13 @@ There are two approaches that we adopted to compute correlation between mouse da
 ![Human-mouse logFCcorrelation](../fig/Picture4.png)
 
 
-These appraoches allow us to assess directional coherence between AMP-AD modules and the effects of genetic perturbations in mice. In this lesson, we are going to use first approach. 
+These appraoches allow us to assess directional coherence between AMP-AD modules and the effects of genetic perturbations in mice. In this lesson, we are going to use the first approach. 
 Let's start!
 
 
-#### Step0: Reading Gene Expression Count matrix from Previous Lesson
+#### Step 0: Reading Gene Expression Count matrix from Previous Lesson
 
-We first read the result table saved after differential analysis in last lesson. We start with 5XFAD mouse model to understand all required steps to perform correlation with human AD modules.
+We first read the result table saved after differential analysis in last [lesson](https://asliuyar.github.io/omicsTranslationAD/03-DESeq/index.html). We start with 5XFAD mouse model to understand all required steps to perform the correlation with human AD modules.
 ```{r FAD}
 load("../results/DEAnalysis_5XFAD.Rdata")
 ```
@@ -319,9 +323,9 @@ load("../data/AMPADModuleData_Correlation.RData")
 ```
 
 
-#### Step1: Measure the correlation between mouse models for each sex at each age and AMP-AD modules using common genes from both datasets
+#### Step 1: Measure the correlation between mouse models for each sex at each age and AMP-AD modules using common genes from both datasets
 
-We compute pearson correlation between changes in expression for each gene in a given module (log fold change for cases minus controls) with each mouse model (log fold change of the 5XFAD mice minus sex and age-matched B6 mice). 
+We compute a pearson correlation between changes in expression for each gene in a given module (log fold change for cases minus controls) with each mouse model (log fold change of the 5XFAD mice minus sex and age-matched B6 mice). 
 
 First, we add both mouse `DE_5xFAD.df` and human `ampad_modules_fc` log fold change datasets for all genes.
 
@@ -347,7 +351,7 @@ df <- model_vs_ampad %>%
 head(df)
 ```
 
-total number of groups in data table
+Total number of groups in data table
 ```{r}
 dim(df)
 ```
@@ -357,7 +361,7 @@ Let's check first row:
 head(df[1,]$data)
 ```
 
-Next, we compute correlation coefficients using cor.test function built in R as following:
+Next, we compute correlation coefficients using the cor.test function built in R as following:
 ```{r}
 cor.df <- df  %>%
           mutate(
@@ -371,7 +375,7 @@ cor.df <- df  %>%
 head(cor.df)
 ```
 
-#### Step2: add signifcant correlations and join module cluster information to correlation table
+#### Step 2: add signifcant correlations and join module cluster information to correlation table
 ```{r step2, message=FALSE, warning=FALSE}
 model_module <- cor.df %>%
     mutate(significant = p_value < 0.05) %>%
@@ -383,7 +387,7 @@ model_module <- cor.df %>%
 head(model_module)
 ```
 
-#### Step3: Create a dataframe to use as input for plotting the results
+#### Step 3: Create a dataframe to use as input for plotting the results
 ```{r step3, message=FALSE, warning=FALSE}
 order.model <- c("5xFAD (Male)", "5xFAD (Female)")
 
@@ -404,7 +408,7 @@ head(correlation_for_plot)
 
 
 ### Visualizing the Correlation plot
-Now, we will use above matrix and visualize the correlation results using ggplot2 package.
+Now, we will use the above matrix and visualize the correlation results using ggplot2 package.
 ```{r AMPAD1, message=FALSE, warning=FALSE, fig.width = 18, fig.height = 7, fig.show='hide'}
 
 data <- correlation_for_plot
@@ -463,15 +467,15 @@ dev.off()
 
 ![AMPAD - 5XFAD correlation plot](../results/AMPAD1.png)
 
-In above plot, top row represent 30 AMP-AD modules grouped into 5 consensus clusters describing the major functional groups of AD-related alterations and left column represent mouse models. Positive correlations are shown in blue and negative correlations in red. Color intensity and size of the circles are proportional to the correlation coefficient.  Black square around dots represent significant correlation at p-value=0.05 and non-significant correlations are left blank. 
+In the above plot, the top row represents 30 AMP-AD modules grouped into 5 consensus clusters describing the major functional groups of AD-related alterations and the left column represents mouse models. Positive correlations are shown in blue and negative correlations in red. Color intensity and size of the circles are proportional to the correlation coefficient.  Black squares around dots represent significant correlation at p-value=0.05 and non-significant correlations are left blank. 
 
 Male and female 5XFAD mice display gene expression alterations across all five consensus clusters, with the most pronounced alterations observed in Consensus Cluster B, which consists of immune system pathways. 
 
-We also saw in Volcano plot that immune-related genes were signifcantly overexpressed in the 5XFAD model. This significant positive correlation suggest that 5XFAD model capture inflammatory changes observed in human AD patients.
+We also saw in the Volcano plot that immune-related genes were significantly overexpressed in the 5XFAD model. This significant positive correlation suggests that 5XFAD model captures inflammatory changes observed in human AD patients.
 
 ### Combing all steps into a function to perform correlation analysis
 
-We can combine all above steps to perform correlation analysis into one function to use for other data by just inputting log fod change matrix obtained from differential analysis.
+We can combine all the above steps performing correlation analyses into one function to use for other data by just inputting the log fold change matrix obtained from differential analysis.
 ```{r function, message=FALSE, warning=FALSE}
 corr_function <- function(mydat)
 {
@@ -537,7 +541,7 @@ magora_corrplot <- function(data,ran)
 }
 ```
 
-We can use these functions directly onto our other dataset from LOAD1 cohort. 
+We can use these functions directly into our other dataset from the LOAD1 cohort. 
 
 ## Correlation between LOAD1 models and human AD modules
 
@@ -560,7 +564,7 @@ unique(DE_LOAD1.df$age)
 
 #### Perform the correlation analysis
 
-We directly input logFC table `DE_LOAD1.df` to `corr_function`:
+We directly input the logFC table `DE_LOAD1.df` to `corr_function`:
 ```{r AMPAD2, message=FALSE, warning=FALSE}
 order.model <- c("APOE4 (Male)", "APOE4 (Female)","Trem2 (Male)", "Trem2 (Female)","APOE4Trem2 (Male)", "APOE4Trem2 (Female)")
 

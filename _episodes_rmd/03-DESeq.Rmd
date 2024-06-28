@@ -4,7 +4,7 @@ title: "Differential Expression Analysis"
 teaching: 40
 exercises: 10
 questions:
-- "What transcriptomic changes we observe in mouse models carrying AD-related mutations?"
+- "What are the transcriptomic changes we observe in mouse models carrying AD-related mutations?"
 objectives:
 - "Read in a count matrix and metadata."
 - "Understand the data from AD mouse models"
@@ -40,8 +40,8 @@ suppressPackageStartupMessages(library(clusterProfiler))
 
 
 
-## Reading Gene Expression Count matrix from  Previous Lesson
-In this lesson, we will use the raw counts matrix and metadata downloaded in the previous lesson and will perform differential expression analysis. 
+## Reading Gene Expression Count matrix from Previous Lesson
+In this lesson we will use the raw counts matrix and metadata downloaded in the [previous lesson](https://asliuyar.github.io/omicsTranslationAD/02-Portal_workshop_5XFADdata/index.html) and will perform differential expression analysis. 
 
 ### RNA-Seq data from 5xFAD mouse models
 
@@ -56,7 +56,7 @@ covars <- readRDS("../data/covars_5XFAD.rds")
 
 Let's explore the data: 
 
-Let’s look at the top of the metadata.
+Let’s look at the top of the metadata
 ```{r}
 head(covars)
 ```
@@ -96,7 +96,7 @@ In the counts matrix, genes are in rows and samples are in columns. Let’s look
 head(counts,n=5)
 ```
 
-As you can see, the gene ids are ENSEBL IDs. There is some risk that these may not be unique. Let’s check whether any of the gene symbols are duplicated. We will sum the number of duplicated gene symbols.
+As you can see, the gene ids are ENSEMBL IDs. There is some risk that these may not be unique. Let’s check if any of the gene symbols are duplicated. We will do this by summing the number of duplicated gene symbols.
 
 ```{r}
 sum(duplicated(rownames(counts)))
@@ -109,31 +109,31 @@ sum(duplicated(colnames(counts)))
 ```
 
 
-### Formatting the count matrix
-Now, as we see that gene_id is in first column of count matrix, but we will need only count data in matrix, so we will change the gene_id column to rownames.  
+### Formatting the count matrix - data wrangling
+Now, as we see that gene_id is in the first column of the count matrix. We will only need count data in the matrix, so we will change the gene_id column to rownames.  
 Converting the gene_id as rownames of count matrix
 ```{r}
 counts <- counts %>% column_to_rownames(.,var="gene_id") %>% as.data.frame()
 ```
 
-let's confirm if change is done correctly
+let's confirm if the change is done correctly
 ```{r}
 head(counts,n=5)
 ```
 
-As you can see from count table there are some genes that start with **"ENSG"** and others start with **"ENSMUSG"**. **"ENSG"** referes to human gene ENSEMBL id and **"ENSMUSG"** refer to mouse ENSEMBL id. Let's check how many gene_ids are NOT from the mouse genome by searching for the string "MUS" (as in Mus musculus) in the rownames of count matrix
+As you can see from the count table there are some genes that start with **"ENSG"** and others start with **"ENSMUSG"**. **"ENSG"** refers to human gene ENSEMBL id and **"ENSMUSG"** refer to mouse ENSEMBL id. Let's check how many gene_ids are NOT from the mouse genome by searching for the string "MUS" (as in Mus musculus) in the rownames of count matrix
 ```{r}
 counts[,1:6] %>% 
   filter(!str_detect(rownames(.), "MUS"))
 ```
-Ok, so we see there are two human genes in out count matrix. Why? What genes are they?
+Ok, so we see there are two human genes in our count matrix. Why? What genes are they?
 
 
-Briefly, 5xFAD mouse strain harbors two human transgenes APP ("ENSG00000142192") and PSEN1 ("ENSG00000080815") and inserted into exon 2 of the mouse Thy1 gene. To validate 5XFAD strain and capture expression of human transgene APP and PS1, a custom mouse genomic sequences was created and we quantified expression of human as well as mouse App ("ENSMUSG00000022892") and Psen1 ("ENSMUSG00000019969") genes by our MODEL-AD RNA-Seq pipeline.
+The 5xFAD mouse strain harbors two human transgenes APP ("ENSG00000142192") and PSEN1 ("ENSG00000080815") and inserted into exon 2 of the mouse Thy1 gene. To validate the 5XFAD strain and capture expression of human transgene APP and PS1, a custom mouse genomic sequence was created and we quantified expression of human as well as mouse App ("ENSMUSG00000022892") and Psen1 ("ENSMUSG00000019969") genes by our MODEL-AD RNA-Seq pipeline.
 
 ### Validation of 5xFAD mouse strain
 
-#First we convert the dataframe to longer format and join our covariates by MouseID
+First we convert the dataframe to longer format and join our covariates by MouseID
 ```{r warning=FALSE,fig.width=14,fig.height=10}
 count_tpose <- counts  %>%
                 rownames_to_column(.,var="gene_id") %>% 
@@ -161,9 +161,9 @@ count_tpose %>%
   geom_point(position=position_jitterdodge()) +
   facet_wrap(~sex+gene_id) +theme_bw()
 ```
-You will notice expression of Human APP is higher in 5XFAD carriers but lower in non-carriers. However mouse App expressed in both 5XFAD carrier and non-carrier. 
+You will notice expression of Human APP is higher in 5XFAD carriers but lower in non-carriers. However mouse App expressed equally in both 5XFAD carrier and non-carrier. 
 
-We are going to sum the counts from both ortholgous genes (human APP and mouse App; human PSEN1 and mouse Psen1) and save summed expression as expression of mouse genes, respectively to match with gene names in control mice.
+We are going to sum the counts from both ortholgous genes (human APP and mouse App; human PSEN1 and mouse Psen1) and save the summed expression as an expression of mouse genes, respectively to match with gene names in control mice.
 ```{r}
 #merge mouse and human APP gene raw count
 counts[rownames(counts) %in% "ENSMUSG00000022892",] <- counts[rownames(counts) %in% "ENSMUSG00000022892",] + counts[rownames(counts) %in% "ENSG00000142192",]
@@ -191,9 +191,9 @@ We can see that 9691 (17%) genes have no reads at all associated with them. In t
 
 ## Differential Analysis using DESeq2
 
-Now, after exploring and formatting the data, We will look for differential expression between the control and 5xFAD mice at different ages for both sexes. The differentially expressed genes (DEGs) can inform our understanding of how the 5XFAD mutation affect the biological processes.
+After exploring and formatting the data we will look for differential expression between the control and 5xFAD mice at different ages for both sexes. The differentially expressed genes (DEGs) can inform our understanding of how the 5XFAD mutation affect the biological processes.
 
-DESeq2 analysis consist of multiple steps. We are going to briefly understand some of the important steps using subset of data and then we will perform differential analysis on whole dataset. For detailed analysis see the [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) tutorial.
+DESeq2 analysis consists of multiple steps. We are going to briefly understand some of the important steps using a subset of data and then we will perform differential analysis on a whole dataset. For detailed analysis see the [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) tutorial.
 
 First, order the data (so counts and metadata match) and save in another variable
 ```{r subset}
@@ -263,7 +263,7 @@ resOrdered <- res[order(res$pvalue),]
 head(resOrdered,n=10)
 ```
 
-we can summarize some basic tallies using the summary function.
+We can summarize some basic tallies using the summary function.
 ```{r summary}
 summary(res)
 ```
@@ -317,7 +317,7 @@ head(All_res)
 ```{r}
 dseq_res <- subset(All_res[order(All_res$padj), ], padj < 0.05)
 ```
-Wow! We have a lot of genes with apparently very strong statistically significant differences between the control and 5xFAD carrier.
+Wow! We have a lot of genes with very strong statistically significant differences between the control and 5xFAD carrier.
 
 ```{r}
 dim(dseq_res)
@@ -335,7 +335,7 @@ write.csv(dseq_res,file="../results/DEG_5xFAD_12months_male.csv")
 
 ## Volcano plot
 
-We can visualize the differential expression results using Volcano plot function from **EnhancedVolcano** package.
+We can visualize the differential expression results using Volcano plot function from [EnhancedVolcano](https://bioconductor.org/packages/release/bioc/vignettes/EnhancedVolcano/inst/doc/EnhancedVolcano.html) package.
 For the most basic volcano plot, only a single data-frame, data-matrix, or tibble of test results is required, containing point labels, log2FC, and adjusted or unadjusted P values. The default cut-off for log2FC is >|2|; the default cut-off for P value is 10e-6.
 ```{r volcanoplot}
 
@@ -350,7 +350,7 @@ EnhancedVolcano(All_res,
                                    xlim = c(-3, 6))
 
 ```
-You can see that some top significantly expressed are immune/inflammation-related genes such as Ctsd, C4b, Csf1 etc. These genes are upregulated in the 5XFAD strain. 
+You can see that some top significantly expressed genes are immune/inflammation-related genes such as Ctsd, C4b, Csf1 etc. These genes are upregulated in the 5XFAD strain. 
 
 ## Principal component plot of the samples
 ```{r PCA}
@@ -362,7 +362,7 @@ vsd <- varianceStabilizingTransformation(dds, blind=FALSE)
 plotPCA(vsd, intgroup=c("genotype", "sex","timepoint"))
 ```
 
-It is also possible to customize the PCA plot using the ggplot function.
+It is also possible to customize the PCA plot using the [ggplot](https://ggplot2.tidyverse.org/) function.
 ```{r PCA2}
 pcaData <- plotPCA(vsd, intgroup=c("genotype", "sex","timepoint"), returnData=TRUE)
 percentVar <- round(100 * attr(pcaData, "percentVar"))
@@ -373,11 +373,11 @@ ggplot(pcaData, aes(PC1, PC2,color=genotype, shape=sex)) +
 
 ```
 
-PCA identified genotype and sex being a major source of variation in between 5XFAD and WT mice. Female and male samples clustered distinctly at all ages, suggesting the presence of sex-biased molecular changes in animals. 
+PCA identified genotype and sex being a major source of variation between 5XFAD and WT mice. Female and male samples clustered distinctly at all ages, suggesting the presence of sex-biased molecular changes in animals. 
 
 ## Function for Differential analysis using DESeq2
 
-Finally, we can built a function for differential analysis that consist of all above discussed steps. It will require to input sorted raw count matrix, sample metadata and define the reference group.
+Finally, we write a function for differential analysis that consists of all above discussed steps. It will require to input sorted raw count matrix, sample metadata and to define the reference group.
 ```{r DEGFunction}
 DEG <- function(rawdata,meta,
                    include.batch = FALSE,
@@ -419,14 +419,14 @@ Let's use this function to analyze all groups present in our data.
 
 ## Differential Analysis of all groups
 
-First, we add a **Group** column to our metadata table that will combine all variable of interest for that sample.
+First, we add a **Group** column to our metadata table that will combine all variables of interest for that sample.
 ```{r DE1, warning=FALSE,message=FALSE}
 metadata$Group <- paste0(metadata$genotype,"-",metadata$sex,"-",metadata$timepoint)
 
 unique(metadata$Group)
 ```
 
-Next, we create a comparison table that has all cases and controls that we would like to compare with each other. Here I have made comparison group for age and sex-matched 5xFAD carriers vs 5xFAD_noncarriers:
+Next, we create a comparison table that has all cases and controls that we would like to compare with each other. Here I have made a comparison group for age and sex-matched 5xFAD carriers vs 5xFAD_noncarriers:
 ```{r}
 
 comparisons <-  data.frame(control=c("5XFAD_noncarrier-male-4 mo", "5XFAD_noncarrier-female-4 mo", "5XFAD_noncarrier-male-6 mo", 
@@ -461,12 +461,12 @@ for (i in 1:nrow(comparisons))
 }
 ```
 
-Let's explore the result stored in our list:
+Let's explore the results stored in our list:
 ```{r}
 names(DE_5xFAD.list)
 ```
 
-We can easily extract result table for any group of interest by using **$** and name of group. Let's check top few rows from 5XFAD_carrier-male-4 mo group:
+We can easily extract the results table for any group of interest by using **$** and the name of the group. Let's check the top few rows from 5XFAD_carrier-male-4 mo group:
 ```{r}
 head(DE_5xFAD.list$`5XFAD_carrier-male-4 mo`)
 ```
@@ -476,22 +476,22 @@ Let's check the result stored as dataframe:
 head(DE_5xFAD.df)
 ```
 
-Check if result is present for all ages:
+Check if the result is present for all ages:
 ```{r}
 unique((DE_5xFAD.df$age))
 ```
 
-Check if result is present for both sexes:
+Check if the result is present for both sexes:
 ```{r}
 unique((DE_5xFAD.df$sex))
 ```
 
-Check number of genes in each group:
+Check the number of genes in each group:
 ```{r}
 count(DE_5xFAD.df,model,sex,age)
 ```
 
-#### Check number of genes significantly differentially expressed in all cases compared to age and sex-matched controls:
+#### Check the number of genes significantly differentially expressed in all cases compared to age and sex-matched controls:
 ```{r DE3, warning=FALSE,message=FALSE}
 degs.up <- map(DE_5xFAD.list, ~length(which(.x$padj<0.05 & .x$log2FoldChange>0)))
 degs.down <- map(DE_5xFAD.list, ~length(which(.x$padj<0.05 & .x$log2FoldChange<0)))
@@ -499,10 +499,10 @@ deg <- data.frame(Cases=names(degs.up), Up_DEGs.pval.05=as.vector(unlist(degs.up
 knitr::kable(deg)
 ```
 
-Interestingly, in females more genes are differentially expressed at 4 months and with age more genes are differentially expressed. Male mice is catching up female mice at later time-point.
+Interestingly, in females more genes are differentially expressed at 4 months. With age, more genes are differentially expressed. Male mice is catching up to female mice at later time-points.
 
 ## Pathway Enrichment
-We may wish to look for enrichment of biological pathways in a list of differentially expressed genes. Here we will test for enrichment of KEGG pathways using  using enrichKEGG function in [clusterProfiler](https://bioconductor.org/packages/release/bioc/vignettes/clusterProfiler/inst/doc/clusterProfiler.html) package.
+We may wish to look for enrichment of biological pathways in a list of differentially expressed genes. Here we will test for enrichment of [KEGG pathways](https://www.genome.jp/kegg/pathway.html) using  using enrichKEGG function in [clusterProfiler](https://bioconductor.org/packages/release/bioc/vignettes/clusterProfiler/inst/doc/clusterProfiler.html) package.
 ```{r pathway,fig.width=8,fig.height=8}
 
 dat <- list(FAD_M_4=subset(DE_5xFAD.list$`5XFAD_carrier-male-4 mo`[order(DE_5xFAD.list$`5XFAD_carrier-male-4 mo`$padj), ], padj < 0.05) %>% pull(EntrezGene),
@@ -518,7 +518,7 @@ enrich_pathway <- compareCluster(dat,
 enrich_pathway@compareClusterResult$Description <- gsub(" - Mus musculus \\(house mouse)","",enrich_pathway@compareClusterResult$Description)
 ```
 
-Let's plot top enriched functions using dotplot function of clusterProfiler package.
+Let's plot the top enriched functions using dotplot function of clusterProfiler package.
 ```{r pathways}
 clusterProfiler::dotplot(enrich_pathway,showCategory=10,font.size = 14,title="Enriched KEGG Pathways")
 ```
@@ -534,7 +534,7 @@ save(DE_5xFAD.df,DE_5xFAD.list,file="../results/DEAnalysis_5XFAD.Rdata")
 
 
 > ## Challenge 3
-> Draw volcano plot for 6 months old female 5xFAD_carrier ? 
+> Draw volcano plot for 6 month old female 5xFAD_carrier ? 
 >
 > > ## Solution to Challenge 3
 > > ~~~
@@ -554,12 +554,12 @@ save(DE_5xFAD.df,DE_5xFAD.list,file="../results/DEAnalysis_5XFAD.Rdata")
 
 
 ### Loading RNA-Seq data from LOAD1 (APOE4*Trem2 Mouse Model)
-There is another RNA-Seq data from LOAD1 mouse cohort. This cohort has three distinct mice strains: 
+There is another RNA-Seq dataset from the LOAD1 mouse cohort. This cohort has three distinct mice strains: 
 *APOE4: humanized Apoe knock-in strain, mouse Apoe allele was replaced by human APOE gene sequence; 
 *Trem2.R47H:knock out mutant of the Trem2, R47H point mutation with two silent mutation and 
 *APOE4.Trem2.R47H (LOAD1): double mutant strain carries humanized APOE (isoform 4) knock in mutation and R47H point mutation of the Trem2 gene. 
 
-Let's read the count data and sample metadata as we did for 5XFAD samples.
+Let's read the count data and sample metadata as we did for the 5XFAD samples.
 ```{r LOAD1, warning=FALSE,message=FALSE}
 counts <- read.delim("../data/htseqcounts_APTR.txt", check.names = FALSE)
 ```
@@ -588,19 +588,19 @@ How many samples are in each genotype for each sex and age group?
 ind_meta %>% group_by(Sex,Genotype,Age) %>% count()
 ```
 
-We notice that there is a column **Batch** in sample metadata. 
+We notice that there is a **Batch** column in sample metadata. 
 
 Let's see how many samples are in each batch.
 ```{r}
 table(ind_meta$Batch)
 ```
-So, total 5 batches. In bulk RNA-Seq experiments, it is usually vital that we apply a correction for samples profiled in different batches. Due to tim-constraint we do not want to do it in this lesson. So, we will use samples from only one batch in this lesson. 
+5 total batches. In bulk RNA-Seq experiments, it is usually vital that we apply a correction for samples profiled in different batches. Due to time constraints we will not do that in this lesson. We will use samples from only one batch in this lesson. 
 
-Let's check which genotype are in which batch?
+Let's check which genotypes are in which batch?
 ```{r}
 table(ind_meta$Batch,ind_meta$Genotype)
 ```
-We are going to use samples from Batch 1 as it has more samples and contain most of our LOAD1 cohort samples that we are interested. 
+We are going to use samples from Batch 1 as it has more samples and contains most of our LOAD1 cohort samples that we are interested in. 
 
 Subset sample metadata for batch 1 only and Convert Mouse ID column to rownames.
 ```{r}
@@ -617,7 +617,7 @@ Let’s look at the first few rows.
 head(covar)
 ```
 
-Check mouse strains and are there numbers in `covar`?
+Check mouse strains and their counts in `covar`?
 ```{r}
 table(covar$Genotype)
 ```
@@ -639,7 +639,7 @@ Let's explore count data.
 ```{r}
 head(counts,n=5)
 ```
-Converting the gene_id as rownames of count matrix
+Converting the gene_id as rownames of the count matrix
 ```{r}
 counts <- counts %>% column_to_rownames(.,var="gene_ID") %>% as.data.frame()
 ```
@@ -650,7 +650,7 @@ dim(counts)
 ```
 In the counts matrix, genes are in rows and samples are in columns.
 
-There are 140 samples in batch 1 as we saw in `covar` and samples in counts matrix is 234. So, we need to subset counts matrix for samples in `covar`. 
+There are 140 samples in batch 1 as we saw in `covar` and 234 samples in counts matrix. We need to subset counts matrix for samples in `covar`. 
 ```{r}
 counts <- counts[,colnames(counts) %in% rownames(covar)]
 ```
@@ -665,13 +665,13 @@ Check how many gene_ids are NOT from the mouse genome by searching for the strin
 counts[,1:6] %>% 
   filter(!str_detect(rownames(.), "MUS"))
 ```
-We see entry of gene id "ENSG00000130203". This is human APOE gene that has been quantified by our MODEL-AD RNA-Seq pipeline.  
+We see an entry of gene id "ENSG00000130203". This is the human APOE gene that has been quantified by our MODEL-AD RNA-Seq pipeline.  
 
 Here you can also check expression of mouse Apoe. 
 ```{r}
 counts[rownames(counts) %in% "ENSMUSG00000002985",1:10]
 ```
-Let's visualize the expression of mouse and human APOE gene across all samples using ggplot2 package.
+Let's visualize the expression of the mouse and human APOE gene across all samples using ggplot2 package.
 
 ### Validation of mouse strains
 
@@ -703,7 +703,7 @@ count_tpose %>%
 
 ```
 
-You will notice expression of mouse Apoe is higher in samples carrying humanized APOE gene sequences but lower in other samples and vice-versa for human APOE. This also suggest that mouse Apoe gene has been correctly replaced by human APOE gene sequences in APOE4 and APOE4Trem strains. This way we can validated the insertion of human transgene.
+You will notice expression of mouse Apoe is higher in samples carrying humanized APOE gene sequences but lower in other samples and vice-versa for human APOE. This also suggests that mouse Apoe gene has been correctly replaced by human APOE gene sequences in APOE4 and APOE4Trem strains. This way we can validate the insertion of a human transgene.
 
 As before, we need to merge expression of human APOE and mouse Apoe:
 ```{r warning=FALSE,message=FALSE}
@@ -732,7 +732,7 @@ metadata$sex[metadata$sex %in% "M"] <- "male"
 
 ## Differential Analysis of all groups in LOAD1 cohort
 
-Next, we create a comparison table that has all cases and controls that we would like to compare with each other. Here I have made comparison group for age and sex-matched distinct mouse strains vs C57BL/6J (control mice):
+Next, we create a comparison table that has all cases and controls that we would like to compare with each other. Here we have the comparison group for age and sex-matched distinct mouse strains vs C57BL/6J (control mice):
 ```{r DELOAD1, warning=FALSE,message=FALSE}
 metadata$Group <- paste0(metadata$genotype,"-",metadata$sex,"-",metadata$timepoint)
 comparisons <-  data.frame(
@@ -765,7 +765,7 @@ for (i in 1:nrow(comparisons)){
 save(DE_LOAD1.df,DE_LOAD1.list,file="../results/DEAnalysis_LOAD1.Rdata")
 ```
 
-check number of genes significantly expressed (adjusted p =0.05) in all cases compared to age and sex-matched controls:
+Check the number of genes significantly expressed (adjusted p =0.05) in all cases compared to age and sex-matched controls:
 
 ```{r number, warning=FALSE,message=FALSE}
 degs.up <- map(DE_LOAD1.list, ~length(which(.x$padj<0.05 & .x$log2FoldChange>0)))

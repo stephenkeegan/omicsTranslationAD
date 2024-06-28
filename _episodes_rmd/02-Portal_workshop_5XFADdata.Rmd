@@ -36,7 +36,7 @@ install.packages("synapser", repos = c("http://ran.synapse.org", "http://cran.fh
 install.packages("tidyverse")
 ```
 
-We will also use the BioconductoR package manager to install `biomaRt`, which will help us with gene count data later.
+We will also use the [BioconductoR](https://www.bioconductor.org/) package manager to install `biomaRt`, which will help us with gene count data later.
 
 ```{r install-biomaRt, eval = FALSE}
 #install.packages("XML")
@@ -137,7 +137,7 @@ query$filepath
 ```
 
 
-We'll use `read.csv` to read the CSV file into R (although the provided `read.table` or any other base R version is also fine!). We can explore the `download_table` object and see that it contains information on all of the AD Portal data files we want to download. Some columns like the "id" and "parentId" columns contain info about where the file is in Synapse, and some columns contain AD Portal annotations for each file, like "dataType", "specimenID", and "assay". This annotation table will later allow us to link downloaded files to additional metadata variables!
+We'll use `read.csv` to read the CSV file into R (although the provided `read.table` or any other base R version is also fine!). We can explore the `download_table` object and see that it contains information on all of the AD Portal data files we want to download. Some columns like the "id" and "parentId" columns contain info about where the file is in Synapse, and some columns contain AD Portal annotations for each file, like "dataType", "specimenID", and "assay". This annotation table will later allow us to link downloaded files to additional metadata variables.
 
 ```{r download-query-table, paged.print=TRUE}
 # read in the table query csv file
@@ -194,8 +194,9 @@ Let's examine the data and metadata files a bit before we begin our analyses.
 #### Counts data
 
 ```{r view-counts}
-# Calling a tibble object will print the first ten rows in a nice tidy output; doing the same for a base R dataframe will print the whole thing until it runs out of memory. If you want to inspect a large dataframe, use `head(df)`
-counts
+# Calling a tibble object will print the first ten rows in a nice tidy output;
+# doing the same for a base R dataframe will print the whole thing until
+# it runs out of memory. If you want to inspect a large dataframe, use `head(df)`counts
 ```
 
 The data file has a column of ENSEMBL gene ids and then a bunch of columns with count data, where the column headers correspond to the specimenIDs. These specimenIDs should all be in the RNAseq assay metadata file, so let's check.
@@ -289,7 +290,7 @@ saveRDS(covars_5XFAD, file = "../data/covars_5XFAD.rds")
 
 For files that contain data from a single specimen (e.g. raw sequencing files, raw mass spectra, etc.), we can use the Synapse annotations to associate these files with the appropriate metadata.
 
-#### Excercise 3: Use [Explore Data](https://adknowledgeportal.synapse.org/Explore/Data) to find *all* RNAseq files from the Jax.IU.Pitt_5XFAD study.
+#### Exercise 3: Use [Explore Data](https://adknowledgeportal.synapse.org/Explore/Data) to find *all* RNAseq files from the Jax.IU.Pitt_5XFAD study.
 
 If we filter for data where Study = "Jax.IU.Pitt_5XFAD" and Assay = "rnaSeq" we will get a list of 148 files, including raw fastqs and processed counts data.
 
@@ -307,7 +308,7 @@ fastq_annotations <- synGetAnnotations(random_fastq)
 fastq_annotations
 ```
 
-The file annotations let us see which study the file is associated with (Jax.IU.Pitt.5XFAD), which species it's from (Mouse), which assay generated the file (rnaSeq), and a whole bunch of other properties. Most importantly, single-specimen files are annotated with with the specimenID of the specimen in the file, and the individualID of the individual that specimen was taken from. We can use these annotations to link files to the rest of the metadata, including metadata that is not in annotations. This is especially helpful for human studies, as potentially identifying information like age, race, and diagnosis is not included in file annotations.
+The file annotations let us see which study the file is associated with (Jax.IU.Pitt.5XFAD), which species it's from (Mouse), which assay generated the file (rnaSeq), and several other properties. Most importantly, single-specimen files are annotated with with the specimenID of the specimen in the file, and the individualID of the individual that specimen was taken from. We can use these annotations to link files to the rest of the metadata, including metadata that is not in annotations. This is especially helpful for human studies, as potentially identifying information like age, race, and diagnosis is not included in file annotations.
 
 ```{r join-annotations-to-metadata}
 
@@ -328,7 +329,7 @@ query <- synTableQuery("SELECT * FROM syn11346063.37 WHERE ( ( \"study\" HAS ( '
 
 ```
 
-As we saw previously, this downloads a csv file with the results of our AD Portal query. Opening that file lets us see which specimens are associated with which files:
+As we saw previously, this downloads a .csv file with the results of our AD Portal query. Opening that file lets us see which specimens are associated with which files:
 
 ```{r read-annotations-table, warning = FALSE, message = FALSE}
 #
@@ -343,7 +344,8 @@ Once you've downloaded all the files in the `id` column, you can link those file
 
 ```{r match-annotations-to-file}
 # We'll use the "random fastq" that we got annotations for earlier
-# To avoid downloading the whole 3GB file, we'll use synGet with "downloadFile = FALSE" to get only the Synapse entity information, rather than the file. 
+# To avoid downloading the whole 3GB file, we'll use synGet with "downloadFile = FALSE" to get only the Synapse entity information,
+# rather than the file. 
 # If we downloaded the actual file, we could find it in the directory and search using the filename. Since we're just downloading the Synapse entity wrapper object, we'll use the file name listed in the object properties.
 
 fastq <- synGet(random_fastq, downloadFile = FALSE)
@@ -369,7 +371,8 @@ annotations_table %>%
 The multispecimen file should contain a row or column of specimenIDs that correspond to the specimenIDs used in a study's metadata, as we have seen with the 5XFAD counts file.
 
 ```{r join-multispecimen-metadata}
-# In this example, we take a slice of the counts data to reduce computation, transpose it so that each row represents a single specimen, and then join it to the joined metadata by the specimenID
+# In this example, we take a slice of the counts data to reduce computation, transpose it so that each row represents a single specimen,
+# and then join it to the joined metadata by the specimenID
 counts %>% 
   slice_head(n = 5) %>% 
   t() %>% 

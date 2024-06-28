@@ -251,7 +251,7 @@ This plot shows the top 20 GSEA enriched terms. The displayed terms are all from
 
 ### Common pitfalls & best practices
 
-These kinds of functional enrichment analyses are very common, but not all results reported are equal! A recent paper describes an ["Urgent need for consistent standards in functional enrichment analysis"](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009935){target='_blank'}. They examine how the results of functional enrichment analyses are reported in the literature, and identify several common shortcomings. Watch out for these common mistakes when performing and reporting your own analyses!  
+These kinds of functional enrichment analyses are very common, but not all results reported are equal! A recent paper describes an ["Urgent need for consistent standards in functional enrichment analysis"](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009935). They examine how the results of functional enrichment analyses are reported in the literature, and identify several common shortcomings. Watch out for these common mistakes when performing and reporting your own analyses!  
 
 ![Common pitfalls](../fig/Wijesooriya_PLOS_CompBio_F2_cropped.png)
 
@@ -261,13 +261,13 @@ While these results are informative and help to provide essential biological con
 
 ![Endophenotypes of AD](../fig/AD_endophenotypes.png)
 
-These endophenotypes describe molecular processes that are dysregulated by or during the disease process. Very similar sets of endophenotypes have been cataloged among the targets of therapeutics in clinical trials for AD (see below, [Cummings et al, Alzheimer's disease drug development pipeline: 2023, Alz Dem TRCI](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10210334/){target='_blank'}).  
+These endophenotypes describe molecular processes that are dysregulated by or during the disease process. Very similar sets of endophenotypes have been cataloged among the targets of therapeutics in clinical trials for AD (see below, [Cummings et al, Alzheimer's disease drug development pipeline: 2023, Alz Dem TRCI](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10210334/).  
 
 ![Common AD Research Ontology](../fig/CADRO_2023.jpg)
 
 ![Drugs in Pipeline by CADRO](../fig/CADRO_2023_2.jpg)
 
-In order to formalize and operationalize these endophenotypic areas, the [Emory-Sage-SGC center of the TREAT-AD consortium](treatad.org/emory-sage-sgc/) has developed the biological domains of AD. In the enumeration of these domains, several criteria were established; the biological domains defined should be:  
+In order to formalize and operationalize these endophenotypic areas, the [Emory-Sage-SGC center of the TREAT-AD consortium](treatad.org/emory-sage-sgc/) has developed the [biological domains](https://alz-journals.onlinelibrary.wiley.com/doi/pdfdirect/10.1002/trc2.12461) of AD. In the enumeration of these domains, several criteria were established; the biological domains defined should be:  
 
  * *objective:* leverage existing well-annotated resources  
  * *automatable:* in CADRO, therapeutics and targets are manually assigned  
