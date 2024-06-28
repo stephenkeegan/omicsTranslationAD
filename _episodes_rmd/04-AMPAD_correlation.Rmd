@@ -75,7 +75,7 @@ Here we are showing a matrix view of gene content overlap between these  modules
 
 ## Reading AMP-AD modules data
 
-You can download data on the 30 human AMP-AD co-expression modules was obtained from the [Synapse data repository](https://www.synapse.org/#!Synapse:syn11932957/tables/). 
+You can download data on the 30 human AMP-AD co-expression modules was obtained from the [Synapse data repository](https://www.synapse.org/Synapse:syn14237651). 
 
 ```{r AMP-AD1, warning=FALSE, message=FALSE}
 query <- synTableQuery("SELECT * FROM syn11932957")
